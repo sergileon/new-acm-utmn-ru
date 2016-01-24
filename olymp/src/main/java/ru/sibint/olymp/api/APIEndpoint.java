@@ -1,8 +1,10 @@
 package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +18,21 @@ import javax.ws.rs.core.MediaType;
 @Path("/rest/")
 public class APIEndpoint {
 
-	final static String version = "0.0.1";
+	final static String propertiesFile = "config.properties";
+	Properties properties = null; 
+	
+	{
+		properties = new Properties();
+		InputStream configStream = getClass().getClassLoader().getResourceAsStream(propertiesFile);
+		if(configStream != null) {
+			try {
+				properties.load(configStream);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	@Path("/submit/")
 	@POST
@@ -39,7 +55,7 @@ public class APIEndpoint {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getServerStatus() {
-		return "Server is up and runs application of version " + version;
+		return "Server is up and runs application of version " + properties.getProperty("version");
 	}
 	
 	@Path("/adduser/")
