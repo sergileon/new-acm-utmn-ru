@@ -32,7 +32,7 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return stringData.toString();
+		return "SUCCESS";
 	}
 	
 	@Path("/serverstatus/")
@@ -40,6 +40,58 @@ public class APIEndpoint {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getServerStatus() {
 		return "Server is up and runs application of version " + version;
+	}
+	
+	@Path("/adduser/")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String addUser(InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(data));
+			String line = "";
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		}
+		return "SUCCESS";
+	}
+	
+	@Path("/addtask/")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String addTask(InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(data));
+			String line = "";
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		}
+		return "SUCCESS";
+	}
+	
+	
+	@Path("/addtasktest/")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String addTaskTest(InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(data));
+			String line = "";
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		}
+		return "SUCCESS";
 	}
 	
 }
