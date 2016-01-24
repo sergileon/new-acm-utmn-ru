@@ -37,8 +37,8 @@ public class APIEndpoint {
 		}
 	}
 	
-	@POST
 	@Path("/submit/")
+	@POST
 	@Consumes("application/json")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processSubmission(InputStream data) {
@@ -65,15 +65,15 @@ public class APIEndpoint {
 		return "SUCCESS";
 	}
 	
-	@GET
 	@Path("/serverstatus/")
+	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getServerStatus() {
 		return "Server is up and runs application of version " + properties.getProperty("version");
 	}
 	
-	@POST
 	@Path("/adduser/")
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String addUser(InputStream data) {
@@ -89,8 +89,8 @@ public class APIEndpoint {
 		return "SUCCESS";
 	}
 	
-	@POST
 	@Path("/addtask/")
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String addTask(InputStream data) {
@@ -107,8 +107,8 @@ public class APIEndpoint {
 	}
 	
 	
-	@POST
 	@Path("/addtasktest/")
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String addTaskTest(InputStream data) {
