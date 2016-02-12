@@ -24,6 +24,8 @@ public class APIEndpoint {
 	final static String propertiesFile = "config.properties";
 	Properties properties = null; 
 	
+	static Logger logger = Logger.getGlobal();
+	
 	{
 		properties = new Properties();
 		InputStream configStream = getClass().getClassLoader().getResourceAsStream(propertiesFile);
@@ -31,8 +33,8 @@ public class APIEndpoint {
 			try {
 				properties.load(configStream);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.log(Level.SEVERE, "Can not load properties file");
+				logger.log(Level.SEVERE, e.getMessage());
 			}
 		}
 	}
@@ -52,15 +54,19 @@ public class APIEndpoint {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
 		
-		File F = new File("C:\\temp\\source.cpp");
+		String fileName = "source" + System.currentTimeMillis() + ".cpp";
+		File F = new File(properties.getProperty("tempdir") + fileName);
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(F);
+			pw.printf("%s", stringData.toString());
+			pw.flush();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Can not create temp file");
+			logger.log(Level.SEVERE, e.getMessage());
+		} finally {
+			pw.close();
 		}
-		pw.printf("%s", stringData.toString());
-		pw.flush();
 		
 		return "SUCCESS";
 	}
@@ -69,7 +75,7 @@ public class APIEndpoint {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getServerStatus() {
-		return "Server is up and runs application of version " + properties.getProperty("version");
+		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
 	}
 	
 	@Path("/adduser/")
