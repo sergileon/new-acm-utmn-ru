@@ -1,6 +1,11 @@
 package ru.sibint.olymp.api;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,13 +15,23 @@ public class Compiler {
 	
 	private static void executeCommand(String command) {
 		try {
-			Runtime.getRuntime().exec(command);
+			Process p = Runtime.getRuntime().exec(command);
+			p.waitFor();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = "";
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine())!= null) {
+			    sb.append(line + "\n");
+			}
+			logger.log(Level.INFO, sb.toString());
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Can not execute command");
 			logger.log(Level.SEVERE, e.getMessage());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
 	
 	public static void compileJava(String path, String fileName) {
 		executeCommand("javac " + path + fileName);
@@ -24,13 +39,13 @@ public class Compiler {
 	}
 	
 	public static void compileCPlusPlus(String path, String fileName) {
-		executeCommand("C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat");
-		executeCommand("C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\cl" + path + fileName);
-		executeCommand(path + fileName + ".exe");
+		executeCommand("cd " + path);
+		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\"");
+		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\cl\" " + path + fileName);
 	}
 	
 	public static void compileCSharp(String path, String fileName) {
-		executeCommand("C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe" + path + fileName);
+		executeCommand("\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe\" " + path + fileName);
 	}
 	
 }

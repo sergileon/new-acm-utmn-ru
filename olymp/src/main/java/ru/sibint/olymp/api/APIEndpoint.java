@@ -41,7 +41,7 @@ public class APIEndpoint {
 	
 	@Path("/submit/")
 	@POST
-	@Consumes("application/json")
+	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processSubmission(InputStream data) {
 		StringBuilder stringData = new StringBuilder();
@@ -55,7 +55,9 @@ public class APIEndpoint {
 		}
 		
 		String fileName = "source" + System.currentTimeMillis() + ".cpp";
-		File F = new File(properties.getProperty("tempdir") + fileName);
+		String tempDir = properties.getProperty("tempdir");
+		tempDir = "C:/temp/";
+		File F = new File(tempDir + fileName);
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(F);
@@ -67,6 +69,8 @@ public class APIEndpoint {
 		} finally {
 			pw.close();
 		}
+		
+		Checker.checkProgram(tempDir, fileName, 1);
 		
 		return "SUCCESS";
 	}
