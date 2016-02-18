@@ -72,7 +72,7 @@ public class Checker {
 	private static CheckingResult check(String path, String fileName, int taskId, String progType) {
 		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
 		String taskPath = archivePath + taskId;
-		int n = new File(taskPath + "\\tests\\").listFiles().length;
+		int n = new File(taskPath + "\\tests\\").listFiles().length / 2;
 		for(int i = 1; i <= n; i++) {
 			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in", progType);
 			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {

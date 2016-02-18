@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 public class APIEndpoint {
 
 	final static String propertiesFile = "config.properties";
+	static String tempDir = "C:\\temp\\";
 	Properties properties = null; 
 	
 	static Logger logger = Logger.getGlobal();
@@ -40,11 +41,15 @@ public class APIEndpoint {
 		}
 	}
 	
-	@Path("/submit/{ext}")
+	@Path("/submit/{ext}/{taskId}/{userId}")
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String processSubmission(@PathParam("ext") String ext, InputStream data) {
+	public String processSubmission(
+			@PathParam("ext") String ext, 
+			@PathParam("taskId") Integer taskId, 
+			@PathParam("userId") Integer userId, 
+			InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
@@ -58,8 +63,6 @@ public class APIEndpoint {
 		}
 		
 		String fileName = "source" + System.currentTimeMillis() + "." + ext;
-		String tempDir = properties.getProperty("tempdir");
-		tempDir = "C:\\temp\\";
 		File F = new File(tempDir + fileName);
 		PrintWriter pw = null;
 		try {
@@ -73,9 +76,9 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
-		Checker.checkProgram(tempDir, fileName, 1);
+		CheckingResult result = Checker.checkProgram(tempDir, fileName, taskId);
 		
-		return "SUCCESS";
+		return "SUCCESS: " + result.toString();
 	}
 	
 	@Path("/serverstatus/")
@@ -120,11 +123,11 @@ public class APIEndpoint {
 	}
 	
 	
-	@Path("/addtasktest/")
+	@Path("/addtasktest/{taskId}/")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addTaskTest(InputStream data) {
+	public String addTaskTest(@PathParam("taskId") Integer taskId, InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
