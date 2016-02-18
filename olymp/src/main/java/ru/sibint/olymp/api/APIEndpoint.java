@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -49,8 +50,10 @@ public class APIEndpoint {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
 			String line = "";
-			while((line = in.readLine()) != null)
+			while((line = in.readLine()) != null) {
+				stringData.append("\n");
 				stringData.append(line);
+			}
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
