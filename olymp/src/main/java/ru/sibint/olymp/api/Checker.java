@@ -1,11 +1,16 @@
 package ru.sibint.olymp.api;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,29 +58,71 @@ public class Checker {
 	
 	public static String getProgramResult(String path, String fileName, String testName) {
 		try {
-			OutputStream os = Runtime.getRuntime().exec(path + fileName + " < " + testName).getOutputStream();
-			return os.toString();
+			Path pth = Paths.get(testName);
+			Process p = Runtime.getRuntime().exec(path + fileName);
+			p.getOutputStream().write(Files.readAllBytes(pth));
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = "";
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine())!= null) {
+			    sb.append(line + "\n");
+			}
+			return sb.toString();
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Can not execute command");
+			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
 			logger.log(Level.SEVERE, e.getMessage());
+		/*} catch (InterruptedException e) {
+			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
+			e.printStackTrace();*/
 		}
 		return null;
 	}
-	
-	public static CheckingResult checkProgram(String path, String fileName, int taskId) {
-		Compiler.compileCSharp(path, fileName);
+
+	private static CheckingResult checkEXE(String path, String fileName, int taskId) {
 		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
 		//TODO Change hardcoded constants
 		String taskPath = "C:\\Users\\Андрей\\Downloads\\acm\\" + taskId;
 		//GetNumber of tests
 		int n = 5;
 		for(int i = 1; i <= n; i++) {
-			String result = getProgramResult(path, newFileName, taskPath + "\\" + i + ".in");
-			if(!compareAnswers(getFileContents(taskPath + "\\" + i + ".out"), result)) {
+			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in");
+			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
 				return CheckingResult.WA;
 			}
 		}
 		return CheckingResult.AC;
+	}
+	
+	private static CheckingResult checkJAVA(String path, String fileName, int taskId) {
+		String newFileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		//TODO Change hardcoded constants
+		String taskPath = "C:\\Users\\Андрей\\Downloads\\acm\\" + taskId;
+		//executeCommand("java " + path + fileName);
+		//GetNumber of tests
+		int n = 5;
+		for(int i = 1; i <= n; i++) {
+			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in");
+			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
+				return CheckingResult.WA;
+			}
+		}
+		return CheckingResult.AC;
+	}
+	
+	public static CheckingResult checkProgram(String path, String fileName, int taskId) {
+		if(fileName.endsWith(".cpp")) {
+			Compiler.compileCPlusPlus(path, fileName);
+			checkEXE(path, fileName, taskId);
+		} else
+		if(fileName.endsWith(".cs")) {
+			Compiler.compileCSharp(path, fileName);
+			checkEXE(path, fileName, taskId);
+		} else
+		if(fileName.endsWith(".java")) {
+			checkJAVA(path, fileName, taskId);
+		}
+		return null;
 	}
 	
 }

@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -39,11 +40,11 @@ public class APIEndpoint {
 		}
 	}
 	
-	@Path("/submit/")
+	@Path("/submit/{ext}")
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String processSubmission(InputStream data) {
+	public String processSubmission(@PathParam("ext") String ext, InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
@@ -54,9 +55,9 @@ public class APIEndpoint {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
 		
-		String fileName = "source" + System.currentTimeMillis() + ".cpp";
+		String fileName = "source" + System.currentTimeMillis() + "." + ext;
 		String tempDir = properties.getProperty("tempdir");
-		tempDir = "C:/temp/";
+		tempDir = "C:\\temp\\";
 		File F = new File(tempDir + fileName);
 		PrintWriter pw = null;
 		try {
