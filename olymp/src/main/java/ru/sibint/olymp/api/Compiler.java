@@ -2,16 +2,16 @@ package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Compiler {
 
 	static Logger logger = Logger.getGlobal();
+	//TODO Change hardcoded constants
+	static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
+	static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
 	
 	private static void executeCommand(String command) {
 		try {
@@ -38,11 +38,11 @@ public class Compiler {
 	}
 	
 	public static void compileCPlusPlus(String path, String fileName) {
-		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" & \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		executeCommand(VCPPPath + "vcvarsall.bat\" & " + VCPPPath + "bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 	public static void compileCSharp(String path, String fileName) {
-		executeCommand("\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		executeCommand(VCSPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 }

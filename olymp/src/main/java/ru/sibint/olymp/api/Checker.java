@@ -1,25 +1,19 @@
 package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.transform.stream.StreamResult;
-
 public class Checker {
 
 	static Logger logger = Logger.getGlobal();
+	//TODO Change hardcoded constants
+	static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
 
 	public static boolean compareAnswers(String referenceAns, String programAns)
 	{
@@ -48,15 +42,16 @@ public class Checker {
 			while(S.hasNext()) {
 				answer += S.next();
 			}
+			S.close();
 			return answer;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Cant read file contents from given path: " + path);
+			logger.log(Level.SEVERE, e.getMessage());
 		}
 		return null;
 	}
 	
-	public static String getProgramResult(String path, String fileName, String testName) {
+	public static String getProgramResult(String path, String fileName, String testName, String programType) {
 		try {
 			ProcessBuilder pb = new ProcessBuilder(path + fileName);
 			pb.redirectInput(new File(testName));
@@ -70,37 +65,16 @@ public class Checker {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
 			logger.log(Level.SEVERE, e.getMessage());
-		/*} catch (InterruptedException e) {
-			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
-			e.printStackTrace();*/
 		}
 		return null;
 	}
 
-	private static CheckingResult checkEXE(String path, String fileName, int taskId) {
+	private static CheckingResult check(String path, String fileName, int taskId, String progType) {
 		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
-		//TODO Change hardcoded constants
-		String taskPath = "C:\\Users\\Андрей\\Downloads\\acm\\" + taskId;
-		//GetNumber of tests
-		int n = 5;
+		String taskPath = archivePath + taskId;
+		int n = new File(taskPath + "\\tests\\").listFiles().length;
 		for(int i = 1; i <= n; i++) {
-			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in");
-			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
-				return CheckingResult.WA;
-			}
-		}
-		return CheckingResult.AC;
-	}
-	
-	private static CheckingResult checkJAVA(String path, String fileName, int taskId) {
-		String newFileName = fileName.substring(0, fileName.lastIndexOf('.'));
-		//TODO Change hardcoded constants
-		String taskPath = "C:\\Users\\Андрей\\Downloads\\acm\\" + taskId;
-		//executeCommand("java " + path + fileName);
-		//GetNumber of tests
-		int n = 5;
-		for(int i = 1; i <= n; i++) {
-			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in");
+			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in", progType);
 			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
 				return CheckingResult.WA;
 			}
@@ -111,14 +85,14 @@ public class Checker {
 	public static CheckingResult checkProgram(String path, String fileName, int taskId) {
 		if(fileName.endsWith(".cpp")) {
 			Compiler.compileCPlusPlus(path, fileName);
-			return checkEXE(path, fileName, taskId);
+			return check(path, fileName, taskId, "EXE");
 		} else
 		if(fileName.endsWith(".cs")) {
 			Compiler.compileCSharp(path, fileName);
-			return checkEXE(path, fileName, taskId);
+			return check(path, fileName, taskId, "EXE");
 		} else
 		if(fileName.endsWith(".java")) {
-			return checkJAVA(path, fileName, taskId);
+			return check(path, fileName, taskId, "JAVA");
 		}
 		return null;
 	}
