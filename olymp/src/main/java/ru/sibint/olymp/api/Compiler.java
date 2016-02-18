@@ -38,8 +38,7 @@ public class Compiler {
 	}
 	
 	public static void compileCPlusPlus(String path, String fileName) {
-		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\"");
-		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\cl\" " + path + fileName);
+		executeCommand("\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" & \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 	public static void compileCSharp(String path, String fileName) {

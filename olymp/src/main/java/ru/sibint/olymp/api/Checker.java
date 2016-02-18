@@ -24,7 +24,7 @@ public class Checker {
 	public static boolean compareAnswers(String referenceAns, String programAns)
 	{
 		String refAns = ""; 
-		for(int i = 0; i < programAns.length(); i++)
+		for(int i = 0; i < referenceAns.length(); i++)
 		{
 			if(referenceAns.charAt(i) >= 33) {
 				refAns += referenceAns.charAt(i);
@@ -58,11 +58,9 @@ public class Checker {
 	
 	public static String getProgramResult(String path, String fileName, String testName) {
 		try {
-			Path pth = Paths.get(testName);
-			Process p = Runtime.getRuntime().exec(path + fileName);
-			p.getOutputStream().write(Files.readAllBytes(pth));
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			ProcessBuilder pb = new ProcessBuilder(path + fileName);
+			pb.redirectInput(new File(testName));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(pb.start().getInputStream()));
 			String line = "";
 			StringBuilder sb = new StringBuilder();
 			while ((line = reader.readLine())!= null) {
@@ -113,14 +111,14 @@ public class Checker {
 	public static CheckingResult checkProgram(String path, String fileName, int taskId) {
 		if(fileName.endsWith(".cpp")) {
 			Compiler.compileCPlusPlus(path, fileName);
-			checkEXE(path, fileName, taskId);
+			return checkEXE(path, fileName, taskId);
 		} else
 		if(fileName.endsWith(".cs")) {
 			Compiler.compileCSharp(path, fileName);
-			checkEXE(path, fileName, taskId);
+			return checkEXE(path, fileName, taskId);
 		} else
 		if(fileName.endsWith(".java")) {
-			checkJAVA(path, fileName, taskId);
+			return checkJAVA(path, fileName, taskId);
 		}
 		return null;
 	}
