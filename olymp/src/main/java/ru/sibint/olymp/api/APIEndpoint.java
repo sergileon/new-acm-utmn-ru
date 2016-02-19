@@ -84,13 +84,6 @@ public class APIEndpoint {
 		return "SUCCESS: " + result.toString();
 	}
 	
-	@Path("/serverstatus/")
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getServerStatus() {
-		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
-	}
-	
 	@Path("/adduser/")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -105,7 +98,7 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "SUCCESS";
+		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
 	@Path("/addtask/")
@@ -122,7 +115,7 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "SUCCESS";
+		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
 	
@@ -140,27 +133,34 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "SUCCESS";
+		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
 	@Path("/tasklist/")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getTaskList() {
-		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
 	@Path("/taskinfo/{taskId}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getTaskInfo(@PathParam("taskId") Integer taskId) {
-		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
 	@Path("/usertasklist/{userId}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserTaskList(@PathParam("userId") Integer userId) {
+		return "{\"Status\":\"SUCCESS\"}";
+	}
+	
+	@Path("/serverstatus/")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getServerStatus() {
 		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
 	}
 	
