@@ -5,9 +5,55 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadMXBean;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+class TestChecker implements Runnable {
+
+	static Logger logger = Logger.getGlobal();
+	
+	private String path;
+	private String fileName;
+	private String testName;
+	private String programType;
+	private String answer = ""; 
+	
+	public TestChecker(String _path, String _fileName, String _testName, String _programType) {
+		path = _path;
+		fileName = _fileName;
+		testName = _testName;
+		programType = _programType;
+	}
+	
+	public String getAnswer() {
+		return answer;
+	}
+	
+	public void run() {
+		try {
+			String command = "";
+			if(programType.equals("EXE"))
+				command = path + fileName;
+			ProcessBuilder pb = new ProcessBuilder(command);
+			pb.redirectInput(new File(testName));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(pb.start().getInputStream()));
+			String line = "";
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine())!= null) {
+			    sb.append(line + "\n");
+			}
+			answer = sb.toString();
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
+			logger.log(Level.SEVERE, e.getMessage());
+		}
+	}
+
+}
 
 public class Checker {
 
@@ -52,21 +98,23 @@ public class Checker {
 	}
 	
 	public static String getProgramResult(String path, String fileName, String testName, String programType) {
+		TestChecker testChecker = new TestChecker(path, fileName, testName, programType);
+		Thread t = new Thread(testChecker);
+		ThreadMXBean tBean = ManagementFactory.getThreadMXBean();
+		t.start();
 		try {
-			ProcessBuilder pb = new ProcessBuilder(path + fileName);
-			pb.redirectInput(new File(testName));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(pb.start().getInputStream()));
-			String line = "";
-			StringBuilder sb = new StringBuilder();
-			while ((line = reader.readLine())!= null) {
-			    sb.append(line + "\n");
+			t.join(2000);
+			if(t.isAlive()) {
+				t.interrupt();
+				return null;
 			}
-			return sb.toString();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
+			long time = tBean.getThreadCpuTime(t.getId());
+			logger.log(Level.INFO, "Time for " + fileName + " is " + time);
+		} catch (InterruptedException e) {
+			logger.log(Level.SEVERE, "Can't check test " + testName);
 			logger.log(Level.SEVERE, e.getMessage());
 		}
-		return null;
+		return testChecker.getAnswer();
 	}
 
 	private static CheckingResult check(String path, String fileName, int taskId, String progType) {
@@ -75,6 +123,9 @@ public class Checker {
 		int n = new File(taskPath + "\\tests\\").listFiles().length / 2;
 		for(int i = 1; i <= n; i++) {
 			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in", progType);
+			if(result == null) {
+				return CheckingResult.TLE;
+			}
 			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
 				return CheckingResult.WA;
 			}
