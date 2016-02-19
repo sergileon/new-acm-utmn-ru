@@ -140,4 +140,25 @@ public class APIEndpoint {
 		return "SUCCESS";
 	}
 	
+	@Path("/tasklist/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTaskList() {
+		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+	}
+	
+	@Path("/taskinfo/{taskId}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTaskInfo(@PathParam("taskId") Integer taskId) {
+		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+	}
+	
+	@Path("/usertasklist/{userId}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getUserTaskList(@PathParam("userId") Integer userId) {
+		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+	}
+	
 }
