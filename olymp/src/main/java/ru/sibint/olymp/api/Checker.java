@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.lang.management.ThreadMXBean;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -60,6 +59,7 @@ public class Checker {
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
 	static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
+	private static long lastTime = 0;
 
 	public static boolean compareAnswers(String referenceAns, String programAns)
 	{
@@ -104,12 +104,12 @@ public class Checker {
 		t.start();
 		try {
 			t.join(2000);
+			long time = tBean.getThreadCpuTime(t.getId());
+			lastTime = time;
 			if(t.isAlive()) {
 				t.interrupt();
 				return null;
 			}
-			long time = tBean.getThreadCpuTime(t.getId());
-			logger.log(Level.INFO, "Time for " + fileName + " is " + time);
 		} catch (InterruptedException e) {
 			logger.log(Level.SEVERE, "Can't check test " + testName);
 			logger.log(Level.SEVERE, e.getMessage());
@@ -117,23 +117,35 @@ public class Checker {
 		return testChecker.getAnswer();
 	}
 
-	private static CheckingResult check(String path, String fileName, int taskId, String progType) {
+	private static CheckingInfo check(String path, String fileName, int taskId, String progType) {
 		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
 		String taskPath = archivePath + taskId;
 		int n = new File(taskPath + "\\tests\\").listFiles().length / 2;
+		
+		CheckingInfo cInfo = new CheckingInfo();
+		cInfo.setVerdict(CheckingResult.AC);
 		for(int i = 1; i <= n; i++) {
 			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in", progType);
 			if(result == null) {
-				return CheckingResult.TLE;
+				cInfo.setTestNumber(i);
+				cInfo.setVerdict(CheckingResult.TLE);
+				cInfo.setTime(lastTime);
+				break;
 			}
 			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
-				return CheckingResult.WA;
+				cInfo.setTestNumber(i);
+				cInfo.setVerdict(CheckingResult.WA);
+				cInfo.setTime(lastTime);
+				break;
+			}
+			if(cInfo.getTime() < lastTime) {
+				cInfo.setTime(lastTime);
 			}
 		}
-		return CheckingResult.AC;
+		return cInfo;
 	}
 	
-	public static CheckingResult checkProgram(String path, String fileName, int taskId) {
+	public static CheckingInfo checkProgram(String path, String fileName, int taskId) {
 		if(fileName.endsWith(".cpp")) {
 			Compiler.compileCPlusPlus(path, fileName);
 			return check(path, fileName, taskId, "EXE");

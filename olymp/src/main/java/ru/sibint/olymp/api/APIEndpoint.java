@@ -76,7 +76,7 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
-		CheckingResult result = Checker.checkProgram(tempDir, fileName, taskId);
+		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId);
 		
 		return "SUCCESS: " + result.toString();
 	}
