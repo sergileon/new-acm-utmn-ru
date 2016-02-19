@@ -21,6 +21,7 @@ class TestChecker implements Runnable {
 	private String programType;
 	private String answer = "";
 	private Process currentProcess;
+	private long memoryUsage = 0;
 	
 	public TestChecker(String _path, String _fileName, String _testName, String _programType) {
 		path = _path;
@@ -44,7 +45,12 @@ class TestChecker implements Runnable {
 				command = path + fileName;
 			ProcessBuilder pb = new ProcessBuilder(command);
 			pb.redirectInput(new File(testName));
+			long startMemory = Runtime.getRuntime().freeMemory();
 			currentProcess = pb.start();
+			long endMemory = Runtime.getRuntime().freeMemory();
+			
+			memoryUsage = startMemory - endMemory;
+			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
 			String line = "";
 			StringBuilder sb = new StringBuilder();
@@ -57,6 +63,10 @@ class TestChecker implements Runnable {
 			logger.log(Level.SEVERE, e.getMessage());
 		}
 	}
+	
+	public long getMemoryUsage() {
+		return memoryUsage;
+	}
 
 }
 
@@ -66,6 +76,7 @@ public class Checker {
 	//TODO Change hardcoded constants
 	static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
 	private static long lastTime = 0;
+	private static long lastMem = 0;
 
 	public static boolean compareAnswers(String referenceAns, String programAns)
 	{
@@ -112,6 +123,7 @@ public class Checker {
 			t.join(2000);
 			long time = tBean.getThreadCpuTime(t.getId());
 			lastTime = time;
+			lastMem = testChecker.getMemoryUsage();
 			if(t.isAlive()) {
 				testChecker.stopProcess();
 				//t.interrupt();
@@ -147,6 +159,9 @@ public class Checker {
 			}
 			if(cInfo.getTime() < lastTime) {
 				cInfo.setTime(lastTime);
+			}
+			if(cInfo.getMemory() < lastMem) {
+				cInfo.setMemory(lastMem);
 			}
 		}
 		return cInfo;
