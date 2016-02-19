@@ -19,7 +19,8 @@ class TestChecker implements Runnable {
 	private String fileName;
 	private String testName;
 	private String programType;
-	private String answer = ""; 
+	private String answer = "";
+	private Process currentProcess;
 	
 	public TestChecker(String _path, String _fileName, String _testName, String _programType) {
 		path = _path;
@@ -32,6 +33,10 @@ class TestChecker implements Runnable {
 		return answer;
 	}
 	
+	public void stopProcess() {
+		currentProcess.destroy();
+	}
+	
 	public void run() {
 		try {
 			String command = "";
@@ -39,7 +44,8 @@ class TestChecker implements Runnable {
 				command = path + fileName;
 			ProcessBuilder pb = new ProcessBuilder(command);
 			pb.redirectInput(new File(testName));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(pb.start().getInputStream()));
+			currentProcess = pb.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()));
 			String line = "";
 			StringBuilder sb = new StringBuilder();
 			while ((line = reader.readLine())!= null) {
@@ -107,7 +113,8 @@ public class Checker {
 			long time = tBean.getThreadCpuTime(t.getId());
 			lastTime = time;
 			if(t.isAlive()) {
-				t.interrupt();
+				testChecker.stopProcess();
+				//t.interrupt();
 				return null;
 			}
 		} catch (InterruptedException e) {
