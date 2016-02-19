@@ -1,4 +1,4 @@
-package ru.sibint.olymp.api;
+package ru.sibint.olymp.checker;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +10,8 @@ import java.lang.management.ThreadMXBean;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import ru.sibint.olymp.compiler.Compiler;
 
 class TestChecker implements Runnable {
 
@@ -74,7 +76,7 @@ public class Checker {
 
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
-	static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
+	final static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
 	private static long lastTime = 0;
 	private static long lastMem = 0;
 
@@ -126,7 +128,6 @@ public class Checker {
 			lastMem = testChecker.getMemoryUsage();
 			if(t.isAlive()) {
 				testChecker.stopProcess();
-				//t.interrupt();
 				return null;
 			}
 		} catch (InterruptedException e) {

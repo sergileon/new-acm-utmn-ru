@@ -19,6 +19,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import ru.sibint.olymp.checker.Checker;
+import ru.sibint.olymp.checker.CheckingInfo;
+
 @Path("/rest/")
 public class APIEndpoint {
 

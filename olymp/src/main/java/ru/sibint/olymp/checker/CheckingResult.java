@@ -1,4 +1,4 @@
-package ru.sibint.olymp.api;
+package ru.sibint.olymp.checker;
 
 public enum CheckingResult {
 	AC, WA, TLE, MLE, RE
