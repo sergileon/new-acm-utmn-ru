@@ -3,12 +3,13 @@
 #include <stdio.h>
 #include <algorithm>
 #include <stdlib.h>
+#include <set>
 
 using namespace std;
 
 const int N = 100;
-const int MAX_GEN_SIZE = 1096;
-const int MN = 1000;
+const int MAX_GEN_SIZE = 2096;
+const int MN = 2000;
 
 struct ship
 {
@@ -35,34 +36,36 @@ bool operator < (row a, row b)
 struct solution
 {
 	char addRowsCount;
-	char rowSize[16];
-	char rowShips[16][N];
+	char rowSize[10];
+	char rowShips[10][N];
 };
 
 int n, m;
-row rows[16];
-ship ships[128];
-int f[128];
-int originalShipsLens[128];
+row rows[10];
+ship ships[N];
+int f[N];
+int originalShipsLens[N];
 
 solution sols[MAX_GEN_SIZE];
 solution newGeneration[MAX_GEN_SIZE];
 
-char knapsackDP[128][MN];
-char kDP[128][MN];
+char knapsackDP[N][MN];
+char kDP[N][MN];
 char getW[MN];
 
-int localAns[128];
+int localAns[N];
 int localAnsSize = 0;
 
 solution ret;
 int count = 0;
 int ninsSize = 0;
-int currentRowLen[16];
-int notInSolution[128];
+int currentRowLen[10];
+int notInSolution[N];
 int curRecBest = 0;
 int totCnt = 0;
 int maxRow = 0;
+
+set<solution> set_sols;
 
 bool operator < (solution a, solution b)
 {
@@ -72,41 +75,40 @@ bool operator < (solution a, solution b)
 		if (a.rowSize[m] != b.rowSize[m])
 			return a.rowSize[m] < b.rowSize[m];
 
-		double aa = 0;
-		double bb = 0;
-		for (int i = 0; i < m; i++)
-		{
-			int curLen = 0;
-			for (int j = 0; j < a.rowSize[i]; j++)
-			{
-				curLen += originalShipsLens[a.rowShips[i][j] - 1];
-			}
-			double aaa = curLen / (rows[i].length + 0.0);
-			aa += aaa;
-		}
-
-		for (int i = 0; i < m; i++)
-		{
-			int curLen = 0;
-			for (int j = 0; j < b.rowSize[i]; j++)
-			{
-				curLen += originalShipsLens[b.rowShips[i][j] - 1];
-			}
-			double bbb = curLen / (rows[i].length + 0.0);
-			bb += bbb;
-		}
-
-		//return aa > bb;
-
 		for (int j = 0; j < a.rowSize[m]; j++)
 			sumA += a.rowShips[m][j] * a.rowShips[m][j];
 
 		for (int j = 0; j < b.rowSize[m]; j++)
 			sumB += b.rowShips[m][j] * b.rowShips[m][j];
 
-		if (sumA == sumB) return aa < bb;
+		if (sumA == sumB) {
+			double aa = 0;
+			double bb = 0;
+			for (int i = 0; i < m; i++)
+			{
+				int curLen = 0;
+				for (int j = 0; j < a.rowSize[i]; j++)
+				{
+					curLen += originalShipsLens[a.rowShips[i][j] - 1];
+				}
+				double aaa = curLen / (rows[i].length + 0.0);
+				aa += aaa;
+			}
 
-		return sumA > sumB;
+			for (int i = 0; i < m; i++)
+			{
+				int curLen = 0;
+				for (int j = 0; j < b.rowSize[i]; j++)
+				{
+					curLen += originalShipsLens[b.rowShips[i][j] - 1];
+				}
+				double bbb = curLen / (rows[i].length + 0.0);
+				bb += bbb;
+			}
+			return aa > bb;
+		}
+
+		return sumA < sumB;
 	}
 	return a.addRowsCount < b.addRowsCount;
 }
@@ -127,52 +129,51 @@ solution greedy(solution s)
 			}
 		}
 	}
+	for (int i = 0; i < n; i++)
+	{
+		if (f[i]) continue;
+		s.rowShips[m][s.rowSize[m]++] = ships[i].id;
+	}
+	if (s.rowSize[m] != 0) s.addRowsCount = m + 1;
 	return s;
 }
 
-void fullRow(int rowLen)
+int lstSize = 0;
+int lst[100];
+
+void fullRow(int rowLen, int sumLen)
 {
-	if(rowLen >= 300)
-	{
-		int cL = 0;
-		localAnsSize = 0;
-		for(int i = 0; i < n; i++)
-		{
-			if(f[i]) continue;
-			if(cL + ships[i].length <= rowLen) 
-			{
-				f[i] = 1;
-				cL += ships[i].length;
-				localAns[localAnsSize++] = ships[i].id;
-			}
-		}
-		return;
-	}
+	localAnsSize = 0;
 	memset(getW, 0, sizeof(getW));
-	if (rowLen >= MN) rowLen = MN - 1;
 	memset(knapsackDP, 0, sizeof(knapsackDP));
-	//memset(kDP, 0, sizeof(kDP));
 	kDP[0][0] = 1;
 	knapsackDP[0][0] = -1;
 	getW[0] = 1;
+
+	lstSize = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (!f[i]) lst[lstSize++] = i;
+	}
+
 	for (int j = 0; j <= rowLen; j++)
 	{
 		if (!getW[j]) continue;
-		for (int i = 0; i < n; i++)
+		//for (int i = 0; i < n; i++)
+		for (int k = 0; k < lstSize; k++)
 		{
-			if (knapsackDP[i][j] != 0)
+			int i = lst[k];
+			if (knapsackDP[k][j] != 0)
 			{
-				if (knapsackDP[i + 1][j] == 0 || kDP[i + 1][j] > kDP[i][j])
+				if (knapsackDP[k + 1][j] == 0)
 				{
-					knapsackDP[i + 1][j] = -1;
-					kDP[i + 1][j] = kDP[i][j];
+					knapsackDP[k + 1][j] = -1;
 				}
-				if (j + ships[i].length <= rowLen && !f[i])
+				if (j + ships[i].length <= rowLen)
 				{
-					if (knapsackDP[i + 1][j + ships[i].length] == 0 || kDP[i + 1][j + ships[i].length] > kDP[i][j])
+					if (knapsackDP[k + 1][j + ships[i].length] == 0)
 					{
-						kDP[i + 1][j + ships[i].length] = kDP[i][j] + 1;
-						knapsackDP[i + 1][j + ships[i].length] = i + 1;
+						knapsackDP[k + 1][j + ships[i].length] = i + 1;
 						getW[j + ships[i].length] = 1;
 					}
 				}
@@ -185,7 +186,7 @@ void fullRow(int rowLen)
 	int sInd = -1;
 	for (int j = 1; j <= rowLen; j++)
 	{
-		for (int i = 1; i <= n; i++)
+		for (int i = 0; i <= n; i++)
 		{
 			if (knapsackDP[i][j])
 			{
@@ -199,7 +200,6 @@ void fullRow(int rowLen)
 		}
 	}
 
-	localAnsSize = 0;
 	while (sInd > 0)
 	{
 		if (knapsackDP[fInd][sInd] == -1)
@@ -219,6 +219,7 @@ void fullRow(int rowLen)
 solution normSolution(solution a)
 {
 	memset(f, 0, sizeof(f));
+	memset(currentRowLen, 0, sizeof(currentRowLen));
 	solution ret = a;
 	for (int i = 0; i < ret.addRowsCount; i++)
 		ret.rowSize[i] = 0;
@@ -237,6 +238,8 @@ solution normSolution(solution a)
 				f[k] = 1; break;
 			}
 
+			currentRowLen[i] += originalShipsLens[ret.rowShips[i][j] - 1];
+
 		}
 	}
 
@@ -246,10 +249,9 @@ solution normSolution(solution a)
 		notInSolution[ninsSize++] = a.rowShips[m][i];
 	}
 
-	curRecBest = 0;
 	for (int i = 0; i < m; i++)
 	{
-		fullRow(rows[i].length - currentRowLen[i]);
+		fullRow(rows[i].length - currentRowLen[i], 0);
 		for (int j = 0; j < localAnsSize; j++)
 		{
 			ret.rowShips[i][ret.rowSize[i]++] = localAns[j];
@@ -264,8 +266,6 @@ solution normSolution(solution a)
 		}
 	}
 	if (ret.rowSize[m] != 0) ret.addRowsCount = m + 1;
-
-	//if (ret.addRowsCount == m) return ret;
 
 	return ret;
 }
@@ -353,10 +353,9 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 			}
 		}
 
-		isGreedy = rand() % 2;
-		//isGreedy = false;
+		//isGreedy = rand() % 2;
+		isGreedy = 0;
 
-		//isGreedy = 0;
 		if (!isGreedy)
 		{
 			if (c % 6 < 3)
@@ -364,15 +363,7 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 				int middle = c % m;
 				for (int i = m - 1; i >= middle; i--)
 				{
-					int hlp = rand() % rows[i].length;
-					/*fullRow(hlp);
-					sols[c].rowSize[i] = localAnsSize;
-					for (int j = 0; j < localAnsSize; j++)
-					{
-					sols[c].rowShips[i][j] = localAns[j];
-					}*/
-					hlp = 0;
-					fullRow(rows[i].length - hlp);
+					fullRow(rows[i].length, 0);
 					for (int j = 0; j < localAnsSize; j++)
 					{
 						sols[c].rowShips[i][sols[c].rowSize[i]++] = localAns[j];
@@ -380,15 +371,7 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 				}
 				for (int i = middle - 1; i >= 0; i--)
 				{
-					int hlp = rand() % rows[i].length;
-					/*fullRow(hlp);
-					sols[c].rowSize[i] = localAnsSize;
-					for (int j = 0; j < localAnsSize; j++)
-					{
-					sols[c].rowShips[i][j] = localAns[j];
-					}*/
-					hlp = 0;
-					fullRow(rows[i].length - hlp);
+					fullRow(rows[i].length, 0);
 					for (int j = 0; j < localAnsSize; j++)
 					{
 						sols[c].rowShips[i][sols[c].rowSize[i]++] = localAns[j];
@@ -400,15 +383,7 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 				int middle = c % m;
 				for (int i = 0; i < middle; i++)
 				{
-					int hlp = rand() % rows[i].length;
-					/*fullRow(hlp);
-					sols[c].rowSize[i] = localAnsSize;
-					for (int j = 0; j < localAnsSize; j++)
-					{
-					sols[c].rowShips[i][j] = localAns[j];
-					}*/
-					hlp = 0;
-					fullRow(rows[i].length - hlp);
+					fullRow(rows[i].length, 0);
 					for (int j = 0; j < localAnsSize; j++)
 					{
 						sols[c].rowShips[i][sols[c].rowSize[i]++] = localAns[j];
@@ -416,15 +391,7 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 				}
 				for (int i = middle; i < m; i++)
 				{
-					int hlp = rand() % rows[i].length;
-					/*fullRow(hlp);
-					sols[c].rowSize[i] = localAnsSize;
-					for (int j = 0; j < localAnsSize; j++)
-					{
-					sols[c].rowShips[i][j] = localAns[j];
-					}*/
-					hlp = 0;
-					fullRow(rows[i].length - hlp);
+					fullRow(rows[i].length, 0);
 					for (int j = 0; j < localAnsSize; j++)
 					{
 						sols[c].rowShips[i][sols[c].rowSize[i]++] = localAns[j];
@@ -447,59 +414,28 @@ void generateSomeSolution(int solutionCount, bool isGreedy, int from, int to)
 			sols[c] = fullGreedy();
 		}
 
+		if(set_sols.find(sols[c]) != set_sols.end())
+		{
+			c--;
+		}
+
 	}
 }
 
-bool RecStrategy(int cur, int tot, int cB, int x)
-{
-	totCnt++;
-	//if (totCnt > 100) return false;
-	if (cur == tot || cB == cur)
-	{
-		return true;
-	}
-	if (cB > curRecBest)
-	{
-		curRecBest = cB;
-	}
-	int rn = rand() % m;
-	for (int i = rn; i >= 0; i--)
-	{
-		if (currentRowLen[i] + originalShipsLens[notInSolution[cur] - 1] <= rows[i].length)
-		{
-			currentRowLen[i] += originalShipsLens[notInSolution[cur] - 1];
-			ret.rowShips[i][ret.rowSize[i]++] = notInSolution[cur];
-			bool h = RecStrategy(cur + 1, tot, cB, x);
-			if (h) return h;
-			ret.rowSize[i]--;
-			currentRowLen[i] -= originalShipsLens[notInSolution[cur] - 1];
-			//if (totCnt > 100) return false;
-		}
-	}
-	for (int i = rn + 1; i < m; i++)
-	{
-		if (currentRowLen[i] + originalShipsLens[notInSolution[cur] - 1] <= rows[i].length)
-		{
-			currentRowLen[i] += originalShipsLens[notInSolution[cur] - 1];
-			ret.rowShips[i][ret.rowSize[i]++] = notInSolution[cur];
-			bool h = RecStrategy(cur + 1, tot, cB, x);
-			if (h) return h;
-			ret.rowSize[i]--;
-			currentRowLen[i] -= originalShipsLens[notInSolution[cur] - 1];
-			//if (totCnt > 100) return false;
-		}
-	}
-	return false;
-}
+int shipsInRow[100];
+int shipsInK[100];
 
 solution mergeSolutions(solution a, solution b, int cnts)
 {
-	for (int i = 0; i < ret.addRowsCount; i++)
+	sort(ships, ships + n);
+
+	for (int i = 0; i < m + 1; i++)
 		ret.rowSize[i] = 0;
 	ret.addRowsCount = m;
 
-	sort(ships, ships + n);
-	int help = rand() % n / 2;
+	if (rand() % 2 == 0) reverse(ships, ships + n);
+
+	int help = (rand() % n) / 4;
 	for (int j = 0; j < help; j++)
 	{
 		int x = rand() % n;
@@ -509,7 +445,20 @@ solution mergeSolutions(solution a, solution b, int cnts)
 		ships[y] = h;
 	}
 
-	if (rand() % 2 == 0) reverse(ships, ships + n);
+	for (int i = 0; i < m; i++)
+	{
+		currentRowLen[i] = 0;
+		for (int j = 0; j < b.rowSize[i]; j++)
+		{
+			shipsInRow[b.rowShips[i][j]] = i;
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		shipsInK[ships[i].id] = i;
+	}
+
 	memset(f, 0, sizeof(f));
 	ninsSize = 0;
 	for (int i = 0; i < m; i++)
@@ -517,26 +466,10 @@ solution mergeSolutions(solution a, solution b, int cnts)
 		currentRowLen[i] = 0;
 		for (int j = 0; j < a.rowSize[i]; j++)
 		{
-			bool isHere = false;
-			for (int k = 0; k < b.rowSize[i]; k++)
-			{
-				if (a.rowShips[i][j] == b.rowShips[i][j])
-				{
-					isHere = true;
-					break;
-				}
-			}
-			if (!isHere && cnts > 0 && rand() % 2)
-			{
-				isHere = true;
-			}
+			bool isHere = (shipsInRow[a.rowShips[i][j]] == i);
 			if (isHere)
 			{
-				for (int k = 0; k < n; k++)
-				if (a.rowShips[i][j] == ships[k].id)
-				{
-					f[k] = 1; break;
-				}
+				f[shipsInK[a.rowShips[i][j]]] = 1;
 
 				ret.rowShips[i][ret.rowSize[i]++] = a.rowShips[i][j];
 
@@ -550,20 +483,19 @@ solution mergeSolutions(solution a, solution b, int cnts)
 
 	}
 
-	for (int i = m; i < a.addRowsCount; i++)
+	int sumLen = 0;
+	for (int j = 0; j < a.rowSize[m]; j++)
 	{
-		for (int j = 0; j < a.rowSize[i]; j++)
-			notInSolution[ninsSize++] = a.rowShips[i][j];
+		notInSolution[ninsSize++] = a.rowShips[m][j];
+		sumLen += originalShipsLens[a.rowShips[m][j] - 1];
 	}
 
-	curRecBest = 0;
 	int randNum = rand() % 3;
 	if (randNum == 0)
 	{
 		for (int i = 0; i < m; i++)
 		{
-			//ret = greedy(ret);
-			fullRow(rows[i].length - currentRowLen[i]);
+			fullRow(rows[i].length - currentRowLen[i], sumLen);
 			for (int j = 0; j < localAnsSize; j++)
 			{
 				ret.rowShips[i][ret.rowSize[i]++] = localAns[j];
@@ -574,8 +506,7 @@ solution mergeSolutions(solution a, solution b, int cnts)
 	{
 		for (int i = m - 1; i >= 0; i--)
 		{
-			//ret = greedy(ret);
-			fullRow(rows[i].length - currentRowLen[i]);
+			fullRow(rows[i].length - currentRowLen[i], sumLen);
 			for (int j = 0; j < localAnsSize; j++)
 			{
 				ret.rowShips[i][ret.rowSize[i]++] = localAns[j];
@@ -595,40 +526,6 @@ solution mergeSolutions(solution a, solution b, int cnts)
 	return ret;
 }
 
-solution mutate(solution sl)
-{
-	int y = 0, z = 0;
-	y = rand() % sl.addRowsCount;
-	z = rand() % sl.addRowsCount;
-
-	int yLen = 0, zLen = 0;
-	for (int j = 0; j < sl.rowSize[y]; j++)
-	{
-		yLen += originalShipsLens[sl.rowShips[y][j] - 1];
-	}
-
-	for (int j = 0; j < sl.rowSize[z]; j++)
-	{
-		zLen += originalShipsLens[sl.rowShips[z][j] - 1];
-	}
-
-	for (int j = 0; j < sl.rowSize[y]; j++)
-	{
-		for (int k = 0; k < sl.rowSize[z]; k++)
-		{
-			if (yLen - originalShipsLens[sl.rowShips[y][j] - 1] + originalShipsLens[sl.rowShips[z][k] - 1] <= rows[y].length &&
-				zLen - originalShipsLens[sl.rowShips[z][k] - 1] + originalShipsLens[sl.rowShips[y][j] - 1] <= rows[z].length)
-			{
-				int h = sl.rowShips[y][j];
-				sl.rowShips[y][j] = sl.rowShips[z][k];
-				sl.rowShips[z][k] = h;
-				return sl;
-			}
-		}
-	}
-	return sl;
-}
-
 solution burningImitation(solution s)
 {
 	//sort all rows by ships length
@@ -636,19 +533,6 @@ solution burningImitation(solution s)
 	int emptyness = 0;
 	for (int i = 0; i < s.addRowsCount; i++)
 	{
-		for (int j = 0; j < s.rowSize[i]; j++)
-		{
-			for (int k = 0; k < s.rowSize[i]; k++)
-			{
-				if (originalShipsLens[s.rowShips[i][j] - 1] < originalShipsLens[s.rowShips[i][k] - 1])
-				{
-					int h = s.rowShips[i][j];
-					s.rowShips[i][j] = s.rowShips[i][k];
-					s.rowShips[i][k] = h;
-				}
-			}
-		}
-
 		currentRowLen[i] = 0;
 		for (int j = 0; j < s.rowSize[i]; j++)
 			currentRowLen[i] += originalShipsLens[s.rowShips[i][j] - 1];
@@ -663,6 +547,7 @@ solution burningImitation(solution s)
 	int tries = 0;
 	while (!burned)
 	{
+		if(tries >= m * m) break;
 		tries++;
 		int x = 0, y = 0;
 		while (x == y)
@@ -689,7 +574,7 @@ solution burningImitation(solution s)
 			}
 			curLen += originalShipsLens[s.rowShips[x][i] - 1];
 		}
-
+		
 		if (y == m || currentRowLen[y] + originalShipsLens[s.rowShips[x][burnedIndex] - 1] <= rows[y].length)
 		{
 			currentRowLen[y] += originalShipsLens[s.rowShips[x][burnedIndex] - 1];
@@ -702,6 +587,21 @@ solution burningImitation(solution s)
 			}
 			s.rowSize[x]--;
 			burned = true;
+		} else 
+		{
+			/*for(int i = 0; i < s.rowSize[y]; i++)
+			{
+				int currentShipLen = originalShipsLens[s.rowShips[y][i] - 1];
+				if( currentRowLen[y] + originalShipsLens[s.rowShips[x][burnedIndex] - 1] - currentShipLen <= rows[y].length && 
+					currentRowLen[x] - originalShipsLens[s.rowShips[x][burnedIndex] - 1] + currentShipLen <= rows[x].length)
+					{
+						int h = s.rowShips[y][i];
+						s.rowShips[y][i] = s.rowShips[x][burnedIndex];
+						s.rowShips[x][burnedIndex] = h;
+					}
+			}
+			burned = true;*/
+			
 		}
 	}
 	return s;
@@ -710,158 +610,100 @@ solution burningImitation(solution s)
 solution bestSolution;
 solution currentSolution;
 
-bool geneticProcess(int solutionCount, int bestCount)
+bool geneticProcess(int solutionCount, int bestCount, int itCount)
 {
-	sort(sols, sols + solutionCount);
 	int temp = 0;
 	int hlp = 0;
 
-	for (int i = 0; i < solutionCount; i++)
-	{
-		int burnCount = 100;
-		bestSolution = sols[i];
-		currentSolution = sols[i];
-		for (int ct = 0; ct < burnCount; ct++)
-		{
-			if (ct % (3 * m) == 0) currentSolution = bestSolution;
-			currentSolution = burningImitation(currentSolution);
-			currentSolution = normSolution(currentSolution);
-			if (currentSolution < bestSolution)
-			{
-				bestSolution = currentSolution;
-			}
-			if (bestSolution.addRowsCount == m) return true;
-		}
-		if (bestSolution < sols[i])
-		{
-			sols[i] = bestSolution;
-		}
-	}
-
 	int yu = 0;
-	sort(sols, sols + solutionCount);
-	while (yu < 5)
+	bestSolution = sols[0];
+
+	while (yu < 2)
 	{
 		yu++;
 		//printf("%d %d %d\n", yu, bestSolution.addRowsCount, bestSolution.rowSize[m]);
 		//if (yu == 50) break;
 		temp = 0;
 		bestSolution = sols[0];
-		if (yu < 2)
+		while (temp < 5)
 		{
-			while (temp < 5)
+			if (sols[0] < bestSolution)
 			{
-				if (sols[0] < bestSolution)
+				bestSolution = sols[0];
+			}
+			temp++;
+			int k = 0;
+			for (int i = 0; i < bestCount; i++)
+			{
+				newGeneration[k++] = sols[i];
+			}
+			if (sols[0].addRowsCount == m)
+			{
+				bestSolution = sols[0];
+				break;
+			}
+			//for (int i = 0; i < bestCount; i++)
+			{
+				//for (int j = 0; j < bestCount; j++)
 				{
-					bestSolution = sols[0];
-				}
-				if (bestSolution.rowSize[m] <= 3 && temp > 5) break;
-				temp++;
-				//printf("%d\n", temp);
-				if (temp % (3 * m) == 0)
-				{
-					currentSolution = bestSolution;
-				}
-				for (int i = 0; i < 10; i++)
-				{
-					currentSolution = burningImitation(currentSolution);
-					currentSolution = normSolution(currentSolution);
-					if (currentSolution < bestSolution)
-					{
-						bestSolution = currentSolution;
-					}
-					if (bestSolution.addRowsCount == m) return true;
-				}
-				int k = 0;
-				for (int i = 0; i < bestCount; i++)
-				{
-					newGeneration[k++] = sols[i];
-					if (i % 2 == 0)
-					{
-						//newGeneration[k++] = currentSolution;
-					}
-				}
-				if (sols[0].addRowsCount == m)
-				{
-					bestSolution = sols[0];
-					break;
-				}
-				for (int i = 0; i < bestCount; i++)
-				{
-					//if (maxRow * m * n <= 100000)
-					{
-						for (int j = 0; j < bestCount; j++)
-						{
-							if (temp % 5 == 0) hlp++;
-							newGeneration[k++] = mergeSolutions(sols[i], sols[j], hlp);
-							if (newGeneration[k - 1].addRowsCount == m)
-							{
-								bestSolution = newGeneration[k - 1]; return true;
-							}
-							if (k == MAX_GEN_SIZE || k == bestCount) break;
-						}
-					}
-					/*else
-					{
-					newGeneration[k++] = mergeSolutions(sols[rand() % solutionCount], sols[rand() % solutionCount], hlp);
-					}
+					if (temp % 5 == 0) hlp++;
+					newGeneration[k++] = mergeSolutions(sols[0], sols[1], hlp);
 					if (newGeneration[k - 1].addRowsCount == m)
 					{
-					bestSolution = newGeneration[k - 1];
-					return true;
-					}*/
-					if (k == MAX_GEN_SIZE || k == bestCount) break;
-				}
-
-				sort(newGeneration, newGeneration + k);
-				/*if (bestSolution < sols[0] && temp % (n * n) == 0)
-				{
-				for (int i = solutionCount / 2; i < solutionCount; i++)
-				{
-				sols[i] = bestSolution;
-				}
-				}
-				else*/
-				{
-					for (int i = 0; i < solutionCount; i++)
-					{
-						sols[i] = newGeneration[i];
-						if (sols[i].addRowsCount == m)
-						{
-							bestSolution = sols[i];
-							return true;
-						}
-						//sols[i] = mutate(sols[i]);
-						sols[i] = burningImitation(sols[i]);
+						bestSolution = newGeneration[k - 1]; return true;
 					}
+					//if (k == MAX_GEN_SIZE || k == bestCount) break;
 				}
-				sort(sols, sols + solutionCount);
+				//if (k == MAX_GEN_SIZE || k == bestCount) break;
 			}
+
+			sort(newGeneration, newGeneration + k);
+
+			if (k > solutionCount) k = solutionCount;
+			for (int i = 0; i < k; i++)
+			{
+				sols[i] = newGeneration[i];
+				if (sols[i].addRowsCount == m)
+				{
+					bestSolution = sols[i];
+					return true;
+				}
+			}
+
+			for (int i = k; i < solutionCount; i++)
+				sols[i] = bestSolution;
+			
+			for(int i = 0; i < solutionCount; i++)
+				sols[i] = burningImitation(sols[i]);
+
 		}
-		int burnCount = 10, k = 0;
-		currentSolution = bestSolution = sols[0];
+
+		int burnCount = 1000, k = 0;
+		currentSolution = bestSolution;// = sols[0];
 		for (int ct = 0; ct < burnCount; ct++)
 		{
-			if (ct % (3 * m) == 0) currentSolution = bestSolution;
 			currentSolution = burningImitation(currentSolution);
-			currentSolution = normSolution(currentSolution);
+			
+			if(ct % 100 == 0)
+				currentSolution = normSolution(currentSolution);
+			
 			if (currentSolution < bestSolution)
 			{
 				bestSolution = currentSolution;
 				if (k < solutionCount)
-					sols[k++] = bestSolution;
+				{
+					sols[k++] = normSolution(currentSolution);
+				}
 			}
+				
 			if (bestSolution.addRowsCount == m) return true;
 		}
-		for (int i = k; i < solutionCount; i++)
-			sols[i] = bestSolution;
 	}
 	return bestSolution.addRowsCount == m;
 }
 
 void outSolution(solution s)
 {
-	//Normalize
 	for (int i = 0; i < m; i++)
 	{
 		if (s.rowSize[i] == 0)
@@ -918,30 +760,6 @@ void outSolution(solution s)
 	}
 }
 
-int Rec(int x)
-{
-	if (x >= n) return 1;
-
-	int h = 0;
-	for (h = 0; !rows[h].length && h < m; h++);
-
-	for (int i = 0; i < n; i++)
-	{
-		if (f[i] || ships[i].length > rows[h].length) continue;
-
-		f[x] = 1;
-		currentSolution.rowShips[h][currentSolution.rowSize[h]++] = ships[i].id;
-		currentRowLen[h] += ships[i].length;
-
-		if (Rec(x + 1)) return 1;
-
-		f[x] = 0;
-		currentSolution.rowSize[h]--;
-		currentRowLen[h] -= ships[i].length;
-	}
-	return 0;
-}
-
 int main()
 {
 	scanf("%d%d", &n, &m);
@@ -960,34 +778,20 @@ int main()
 		rows[i].id = i + 1;
 	}
 
-	int SSC = 80;
+	int SSC = 10;
+	int ind = 0;
+	int itCount = 5;
 	while (true)
 	{
+		ind++;
 		memset(sols, 0, sizeof(sols));
 		int startSolCnt = SSC;
 		int solCnt = startSolCnt;
 
-		generateSomeSolution(startSolCnt / 2, false, 0, startSolCnt);
-		//generateSomeSolution(startSolCnt / 2, true, startSolCnt / 2, startSolCnt);
-
+		generateSomeSolution(startSolCnt, false, 0, startSolCnt);
 		sort(sols, sols + startSolCnt);
-
-		if (geneticProcess(solCnt, solCnt / 2)) break;
-		SSC -= 30;
-		if (SSC < 0) SSC = 2;
-
-		memset(currentRowLen, 0, sizeof(currentRowLen));
-		memset(currentSolution.rowShips, 0, sizeof(currentSolution.rowShips));
-		memset(currentSolution.rowSize, 0, sizeof(currentSolution.rowSize));
-
-		sort(ships, ships + n);
-		reverse(ships, ships + n);
-		//Rec(0);
-		bestSolution = currentSolution;
-		if (bestSolution.addRowsCount == m) break;
+		if (geneticProcess(solCnt, solCnt / 2, itCount)) break;
 	}
 	outSolution(bestSolution);
-	//printf("ALL!");
-	//for(;;);
 	return 0;
 }

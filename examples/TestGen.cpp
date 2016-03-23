@@ -16,7 +16,7 @@ void TestGen1()
 {
 	for (int i = 0; i < n; i++)
 	{
-		int h = rand() % 99 + 1;
+		int h = rand() % 20 + 81;
 		rowLen[rand() % m] += h;
 		a[i] = h;
 	}
@@ -54,7 +54,7 @@ void TestGen2()
 			}
 			if (index == -1) break;
 		}
-		int h = (rand() % 99) + 1;
+		int h = (rand() % 20) + 81;
 		if (h > rowLen[index]) h = rowLen[index];
 		a[n++] = h;
 		rowLen[index] -= h;
@@ -73,7 +73,7 @@ void genTestScenario1(int from, int to)
 		string str = pth + std::to_string(i) + eds;
 		freopen(str.c_str(), "w", stdout);
 
-		m = 9;
+		m = 6;
 		n = 99;
 
 		TestGen1();
@@ -102,7 +102,7 @@ void genTestScenario2(int from, int to)
 		string str = pth + std::to_string(i) + eds;
 		freopen(str.c_str(), "w", stdout);
 
-		m = 9;
+		m = 6;
 		n = 99;
 
 		while (true)
