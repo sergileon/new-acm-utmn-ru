@@ -129,15 +129,39 @@
     <script src="js/bootstrap.min.js"></script>
 	<script>
 		$("#submit").click(function () {
-			var text = $("#sourcecode").val();
+			var sc = $("#sourcecode").val();
 			
 			$.ajax({
-			  type: "POST",
-			  url: "http://localhost:8080/olymp/api/rest/submit/cpp/1/1",
-			  data: text,
+				type: "POST",
+				url: "/olymp/api/rest/submit/cpp/1/1",
+				data: sc,
+				contentType: "text/plain",
+				success: function(jqXHR, data, textStatus) {
+					alert('success: ' + textStatus + data);
+				},
+				error: function (jqXHR, exception) {
+					var msg = '';
+					if (jqXHR.status === 0) {
+						msg = 'Not connect. Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					}
+					alert(msg);
+				}
 			});			
 						
 			$("#submitWindow").modal('hide');
+			return true;
 		});
 	</script>
   </body>
