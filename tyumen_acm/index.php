@@ -35,10 +35,9 @@
 	        <button type="button" class="close" data-dismiss="modal">&times;</button>
 	        <h4 class="modal-title">Status</h4>
 	      </div>
-	      <div class="modal-body">
-		<div class="modal-isi-body">
-
-		</div>
+			<div class="modal-body">
+				<div class="modal-isi-body">
+				</div>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Update</button>
@@ -80,7 +79,7 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		  </button>
-		  <a class="navbar-brand" href="index.html">Tyumen ACM</a>
+		  <a class="navbar-brand" href="index.php">Tyumen ACM</a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
