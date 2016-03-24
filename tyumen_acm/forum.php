@@ -15,5 +15,10 @@
 
 	<body> 
 		<div id="includedContent"></div>
+		
+		<br><br><br><br>
+		<center>
+			<h2>Forum is not available temporary</h2>
+		</center>
 	</body> 
 </html>

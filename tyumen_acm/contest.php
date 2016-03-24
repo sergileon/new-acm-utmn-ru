@@ -15,5 +15,9 @@
 
 	<body> 
 		<div id="includedContent"></div>
+		<br><br><br><br>
+		<center>
+			<h2>No contest at the moment</h2>
+		</center>
 	</body> 
 </html>

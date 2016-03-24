@@ -67,11 +67,30 @@ $conn->close();
 				<td>
 					<center>
 						<button><a href="forum.php?taskid=<?php echo $taskid; ?>">Forum</a></button>
-						<button><a href="#" data-toggle="modal" data-target="#submitWindow">Submit</a></button>
+						<button id="openSubmit"><a href="#" data-toggle="modal" data-target="#submitWindow" id="oS">Submit</a></button>
 					</center>
 				</td>
 			</tr>
 		</tbody>
 	</table>
+	
+	<script>
+	
+		function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			url = url.toLowerCase();
+			name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+	
+		$("#oS").click(function() {
+			$("#taskid").val(getParameterByName('id'));
+		});
+	</script>
+	
 	</body>
 </html>

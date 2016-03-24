@@ -18,6 +18,10 @@
 	</body> 
 
 	<br><br><br>
+	<center>
+		<h2>Tyumen State University: Volume 1</h2>
+	</center>
+	<br><br><br>	
 	
 	<div class="table-responsive">
 		<center>
