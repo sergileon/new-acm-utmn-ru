@@ -1,12 +1,19 @@
 <html> 
-  <head> 
-    <script src="https://code.jquery.com/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-  </head> 
+	<head> 
+		<title>Association of Tyumen Coders</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="css/dopstyle.css" rel="stylesheet" media="screen">	  
+		<script src="js/jquery.js"></script> 
+		<script> 
+		$(function(){
+		  $("#includedContent").load("menu.php"); 
+		});
+		</script> 
+	</head> 
 
-  <body> 
-	<?
-		phpinfo();
-	?>
-  </body> 
+	<body> 
+		<div id="includedContent"></div>
+	</body> 
 </html>

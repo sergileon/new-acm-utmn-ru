@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Association of Tyumen Coders</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-	<link href="css/dopstyle.css" rel="stylesheet" media="screen">	
-  </head>
   <body>
 
 	<div id="statsWindow" class="modal fade" role="dialog">
@@ -35,12 +26,35 @@
 	        <button type="button" class="close" data-dismiss="modal">&times;</button>
 	        <h4 class="modal-title">Status</h4>
 	      </div>
-	      <div class="modal-body">
-		<div class="modal-isi-body">
-
-		</div>
-	      </div>
+			<div class="modal-body">
+				<div class="modal-isi-body">
+					<div class="table-responsive">
+						<center>
+						<table class="table table-hover">
+							<thead>
+							  <tr>
+								<th><center>Task #</center></th>
+								<th><center>Author</center></th>
+								<th><center>Verdict</center></th>
+								<th><center>Time</center></th>
+								<th><center>Memory</center></th>
+							  </tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><center>1</center></td>
+									<td><center>107th</center></td>
+									<td><center>AC</center></td>
+									<td><center>0.001</center></td>
+									<td><center>1 KB</center></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Update</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
@@ -57,6 +71,17 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
+			<label for="sel1">Language:</label>
+			<select class="form-control" id="language">
+				<option value="cpp">MS Visual C++ 2013</option>
+				<option value="cs">MS Visual C# 2013</option>
+				<option value="java">Java 1.8</option>
+				<option value="pas">Pascal</option>
+			</select>
+			<br>
+			<label for="comment">Task Id:</label>
+			<input type="text" class="form-control" id="taskid">
+			<br>
 			<label for="comment">Your code:</label>
 			<code class="language-c"> 
 				<textarea class="form-control" rows="25" id="sourcecode"></textarea>
@@ -64,7 +89,7 @@
 		</div>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Submit</button>
+	        <button type="button" class="btn btn-default" id="submit">Submit</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
@@ -89,19 +114,17 @@
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Problem Set<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
-				<li><a href="#">Volume 1</a></li>
-				<li><a href="#">Volume 2</a></li>
-				<li><a href="#">Volume 3</a></li>
+				<li><a href="volume.php?volume=1">Volume 1</a></li>
 				<li class="divider"></li>
-				<li><a href="#">Contest</a></li>
+				<li><a href="contest.php">Contest</a></li>
 				<li class="divider"></li>
 				<li><a href="#" data-toggle="modal" data-target="#submitWindow">Submit</a></li>
 				<li class="divider"></li>
-				<li><a href="#">Forum</a></li>
+				<li><a href="forum.php">Forum</a></li>
 			  </ul>
 			</li>
-			<li><a href="status.html">Status</a></li>
-			<li><a href="stats.html">Statistics</a></li>
+			<li><a href="#" data-toggle="modal" data-target="#statusWindow">Status</a></li>
+			<li><a href="stats.php">Statistics</a></li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
 			<li class="dropdown">
@@ -110,7 +133,6 @@
 				<li><a href="#">Log In/Sign In</a></li>
 				<li class="divider"></li>
 				<li><a href="#">My profile</a></li>
-				<li><a href="#">Statistics</a></li>
 			  </ul>
 			</li>
 		  </ul>
@@ -125,7 +147,43 @@
 	</nav>
 
 
-    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
-  </body>
-</html>
+	<script>
+		$("#submit").click(function () {
+			var sc = $("#sourcecode").val();
+			var lng = $("#language").val();
+			var tid = $("#taskid").val();
+			$.ajax({
+				type: "POST",
+				url: "/olymp/api/rest/submit/cpp/1/1",
+				data: sc,
+				contentType: "text/plain",
+				success: function(jqXHR, data, textStatus) {
+					alert('success: ' + textStatus + data);
+				},
+				error: function (jqXHR, exception) {
+					var msg = '';
+					if (jqXHR.status === 0) {
+						msg = 'Not connect. Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					}
+					alert(msg);
+				}
+			});			
+						
+			$("#submitWindow").modal('hide');
+			return true;
+		});
+	</script>
