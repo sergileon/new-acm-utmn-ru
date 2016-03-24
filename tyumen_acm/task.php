@@ -124,20 +124,8 @@
 	</nav>
 
 	<br><br><br>
+	<center>
 	
-	<div class="table-responsive">
-		<center>
-		<table class="table table-hover">
-			<thead>
-			  <tr>
-				<th>Task #</th>
-				<th>Name</th>
-				<th>Solutions count</th>
-				<th>Time Limit</th>
-				<th>Memory Limit</th>
-			  </tr>
-			</thead>
-			<tbody>
 <?php
 $servername = "localhost";
 $username = "root";
@@ -149,26 +137,23 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT Id, Name FROM Task";
+$sql = "SELECT Id, Name, Description FROM Task " . " WHERE Id = " . $_GET["id"];
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
-		echo "<tr>";
-        echo "<td>" . $row["Id"] . "</td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\">" . $row["Name"] . "</a></td>";
-        echo "<td>0</td><td>1 sec.</td><td>64 MB.</td>";
-		echo "</tr>\n";
+		echo "<h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center>";
+		echo "<h3>Description:</h3><br>" . $row["Description"] . "<br><br>";
     }
+	echo "<h3>Sample input: </h3><br>"; 
+	echo "<h3>Sample output: </h3><br>"; 
 }
 
 $conn->close();
 ?>			  
-			  
-			</tbody>
-		  </table>
-  		<center>
-	</div>
+
+	<button><a href="#" data-toggle="modal" data-target="#submitWindow">Submit</a></button>
 
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>

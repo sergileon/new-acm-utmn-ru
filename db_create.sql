@@ -9,6 +9,8 @@ CREATE TABLE Task
 (
     Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     Name VARCHAR(255) NOT NULL,
+    TimeLimit INT,
+    MemoryLimit INT,
 	IsAvailable TINYINT,
     Description TEXT NOT NULL
 );
@@ -53,3 +55,10 @@ ALTER TABLE Submission ADD FOREIGN KEY (UserId) REFERENCES UserApp (Id);
 ALTER TABLE TasksForUser ADD FOREIGN KEY (UserId) REFERENCES UserApp (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdContest) REFERENCES Contest (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdTask) REFERENCES Task (Id);
+
+
+INSERT INTO Task(Name, Description) VALUES ("A + B", "Please calculate A + B and write result to the standard output.");
+INSERT INTO Task(Name, Description) VALUES ("A - B", "Please calculate A - B and write result to the standard output.");
+INSERT INTO Task(Name, Description) VALUES ("A * B", "Please calculate A * B and write result to the standard output.");
+INSERT INTO Task(Name, Description) VALUES ("A + B Hard", "Please calculate A + B and write result to the standard output.");
+INSERT INTO Task(Name, Description) VALUES ("A * B Hard", "Please calculate A * B and write result to the standard output.");
