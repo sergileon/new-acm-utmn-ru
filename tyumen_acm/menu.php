@@ -154,9 +154,11 @@
 			var sc = $("#sourcecode").val();
 			var lng = $("#language").val();
 			var tid = $("#taskid").val();
+			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=1";
+			alert(url);
 			$.ajax({
 				type: "POST",
-				url: "/olymp/api/rest/submit/cpp/1/1",
+				url: url,
 				data: sc,
 				contentType: "text/plain",
 				success: function(jqXHR, data, textStatus) {

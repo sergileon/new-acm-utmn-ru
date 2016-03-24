@@ -17,6 +17,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import ru.sibint.olymp.checker.Checker;
@@ -44,14 +45,14 @@ public class APIEndpoint {
 		}
 	}
 	
-	@Path("/submit/{ext}/{taskId}/{userId}")
+	@Path("/submit")
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processSubmission(
-			@PathParam("ext") String ext, 
-			@PathParam("taskId") Integer taskId, 
-			@PathParam("userId") Integer userId, 
+			@QueryParam("ext") String ext, 
+			@QueryParam("taskId") Integer taskId, 
+			@QueryParam("userId") Integer userId, 
 			InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
@@ -78,6 +79,8 @@ public class APIEndpoint {
 		} finally {
 			pw.close();
 		}
+		
+		//System.out.println(ext + " " + taskId + " " + userId);
 		
 		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId);
 		
@@ -119,11 +122,11 @@ public class APIEndpoint {
 	}
 	
 	
-	@Path("/addtasktest/{taskId}/")
+	@Path("/addtasktest")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addTaskTest(@PathParam("taskId") Integer taskId, InputStream data) {
+	public String addTaskTest(@QueryParam("taskId") Integer taskId, InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
@@ -143,17 +146,17 @@ public class APIEndpoint {
 		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
-	@Path("/taskinfo/{taskId}")
+	@Path("/taskinfo")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTaskInfo(@PathParam("taskId") Integer taskId) {
+	public String getTaskInfo(@QueryParam("taskId") Integer taskId) {
 		return "{\"Status\":\"SUCCESS\"}";
 	}
 	
-	@Path("/usertasklist/{userId}")
+	@Path("/usertasklist")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getUserTaskList(@PathParam("userId") Integer userId) {
+	public String getUserTaskList(@QueryParam("userId") Integer userId) {
 		return "{\"Status\":\"SUCCESS\"}";
 	}
 	

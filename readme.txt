@@ -15,5 +15,5 @@ To run REST web-service:
 2. go to the browser and check: http://localhost:8080/olymp/api/rest/serverstatus
 3. TO test POST method use curl utility (you could download it from http://curl.haxx.se/download.html) and next command:
 
-curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cpp http://localhost:8080/olymp/api/rest/submit/cpp/1/1
-curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cs http://localhost:8080/olymp/api/rest/submit/cs/1/1/
+curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cpp 'http://localhost:8080/olymp/api/rest/submit?ext=cpp&taskId=1&userId=1'
+curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cs 'http://localhost:8080/olymp/api/rest/submit?ext=cs&taskId=1&userId=1'
