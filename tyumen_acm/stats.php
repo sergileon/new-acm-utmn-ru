@@ -18,8 +18,50 @@
 		
 		<br><br><br><br>
 		<center>
-			<h2>Statistics is not available temporary</h2>
+			<h2>Authors rating:</h2>
 		</center>
+
+	<div class="table-responsive">
+		<center>
+		<table class="table table-hover">
+			<thead>
+			  <tr>
+				<th><center>Name</center></th>
+				<th><center>Problems solved</center></th>
+			  </tr>
+			</thead>
+			<tbody>
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "olymp";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} 
+
+$sql = "SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId GROUP BY UserApp.Name ORDER BY Rating DESC;";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+		echo "<tr>";
+        echo "<td><center>" . $row["UserName"] . "</center></td>" . "<td><center>" . $row["Rating"] . "</center></td>";
+		echo "</tr>\n";
+    }
+}
+
+$conn->close();
+?>			  
+			  
+			</tbody>
+		  </table>
+  		<center>
+	</div>
+		
 		
 	</body> 
 </html>

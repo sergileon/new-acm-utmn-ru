@@ -17,3 +17,25 @@ To run REST web-service:
 
 curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cpp 'http://localhost:8080/olymp/api/rest/submit?ext=cpp&taskId=1&userId=1'
 curl -i -X POST --header "Content-Type: text/plain" --data-binary @source.cs 'http://localhost:8080/olymp/api/rest/submit?ext=cs&taskId=1&userId=1'
+
+
+To insert some data use:
+INSERT INTO UserApp(Name) VALUES ("A. Byte");
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 1);
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 1);
+
+INSERT INTO UserApp(Name) VALUES ("B. Integer");
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 2);
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (7, "AC", 1, 765, 2);
+
+INSERT INTO UserApp(Name) VALUES ("C. Double");
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 3);
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (7, "AC", 1, 765, 3);
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (8, "AC", 1, 765, 3);
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (8, "AC", 1, 765, 3);
+
+INSERT INTO UserApp(Name) VALUES ("D. String");
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 4);
+
+INSERT INTO UserApp(Name) VALUES ("E. Boolean");
+INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES (6, "AC", 1, 765, 5);

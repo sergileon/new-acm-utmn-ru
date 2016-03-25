@@ -25,6 +25,9 @@ CREATE TABLE Submission
 (
     Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     TaskId INT NOT NULL,
+    Verdict TEXT,
+    TimeSpent INT,
+    MemorySpent INT,
     UserId INT NOT NULL
 );
 CREATE TABLE TasksForUser
