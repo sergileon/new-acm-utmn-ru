@@ -59,7 +59,7 @@
 							if ($result->num_rows > 0) {
 								while($row = $result->fetch_assoc()) {
 									echo "<tr>";
-									echo "<td>" . $row["Id"] . "</td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\" class=\"link-unstyled\">" . $row["Name"] . "</a></td>";
+									echo "<td>" . $row["Id"] . "</td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\">" . $row["Name"] . "</a></td>";
 									echo "<td>0</td><td>1 sec.</td><td>64 MB.</td>";
 									echo "</tr>\n";
 								}
