@@ -286,5 +286,5 @@
 		});
 	</script>
 	<style type="text/css">
-		body { background: rgb(198,198,198) !important; }
+		body { background: url('images/bk.jpg'); !important; }
 	</style>

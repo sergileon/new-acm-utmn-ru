@@ -17,6 +17,7 @@
 		<div id="includedContent"></div>
 	</body> 
 
+	<font color="white">
 	<br><br><br>
 	<center>
 		<h2>Online Contester: Problem Set</h2>
@@ -59,8 +60,8 @@
 							if ($result->num_rows > 0) {
 								while($row = $result->fetch_assoc()) {
 									echo "<tr>";
-									echo "<td>" . $row["Id"] . "</td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\">" . $row["Name"] . "</a></td>";
-									echo "<td>0</td><td>1 sec.</td><td>64 MB.</td>";
+									echo "<td><font color=\"white\">" . $row["Id"] . "</font></td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\"><font color=\"white\">" . $row["Name"] . "</font></a></td>";
+									echo "<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>";
 									echo "</tr>\n";
 								}
 							}
@@ -76,7 +77,7 @@
 		</tbody>
 	</table>
 	</center>
-	
+	</font>
 
 	</body>
 </html>

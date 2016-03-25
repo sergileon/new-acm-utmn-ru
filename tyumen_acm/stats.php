@@ -18,22 +18,22 @@
 		
 		<br><br><br><br>
 		<center>
-			<h2>Authors rating:</h2>
+			<h2><font color="white">Authors rating:</font></h2>
 		</center>
 
 	<center>
 	<table width="100%">
 		<tbody>
 			<tr>
-			<td width="10%"></td>
+			<td width="25%"></td>
 			<td>
 	<div class="table-responsive">
 		<center>
 		<table class="table table-hover">
 			<thead>
 			  <tr>
-				<th><center>Name</center></th>
-				<th><center>Problems solved</center></th>
+				<th><center><font color="white">Name</font></center></th>
+				<th><center><font color="white">Problems solved</font></center></th>
 			  </tr>
 			</thead>
 			<tbody>
@@ -55,7 +55,7 @@ if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
 		echo "<tr>";
-        echo "<td><center>" . $row["UserName"] . "</center></td>" . "<td><center>" . $row["Rating"] . "</center></td>";
+        echo "<td><center><font color=\"white\">" . $row["UserName"] . "</font></center></td>" . "<td><center><font color=\"white\">" . $row["Rating"] . "</font></center></td>";
 		echo "</tr>\n";
     }
 }
@@ -67,7 +67,7 @@ $conn->close();
 		  </table>
   		<center>
 	</div>
-			</td><td width="10%"></td>
+			</td><td width="25%"></td>
 			</tr>
 		</tbody>
 	</table>

@@ -37,7 +37,8 @@
 		</thead>
 		<tbody>
 			<tr>
-	
+		
+
 <?php
 $servername = "localhost";
 $username = "root";
@@ -58,15 +59,16 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 		//echo "<tr><td></td><td><center><h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center></td><td></td></tr>";
 		$taskid = $row["Id"];
-		echo "<tr><td colspan=\"3\"><center><h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center></td></tr>";
-		echo "<tr><td></td><td><h3>Description:</h3><br><p class=\"text-info\" align=\"justify\">" . $row["Description"] . "</p><br><br></td><td></td></tr>";
+		echo "<tr><td colspan=\"3\"><center><h2><font color=\"white\">" . $row["Id"] . ". " . $row["Name"] . "</font></h2><br><br></center></td></tr>";
+		echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\">" . $row["Description"] . "</font></p><br><br></td><td></td></tr>";
     }
-	echo "<tr><td></td><td><h3>Sample input: </h3><br></td><td></td></tr>"; 
-	echo "<tr><td></td><td><h3>Sample output: </h3><br></td><td></td></tr>"; 
+	echo "<tr><td></td><td><h3><font color=\"white\">Sample input: </font></h3><br></td><td></td></tr>"; 
+	echo "<tr><td></td><td><h3><font color=\"white\">Sample output: </font></h3><br></td><td></td></tr>"; 
 }
 
 $conn->close();
 ?>			  
+	
 			</tr>
 			<tr>
 				<td></td><td></td>
@@ -103,6 +105,5 @@ $conn->close();
 			$("#taskid").val(getParameterByName('id'));
 		});
 	</script>
-	
 	</body>
 </html>

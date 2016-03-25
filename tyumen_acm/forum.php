@@ -18,7 +18,7 @@
 		
 		<br><br><br><br>
 		<center>
-			<h2>Forum is not available temporary</h2>
+			<h2><font color="white">Forum is not available temporary</font></h2>
 		</center>
 	</body> 
 </html>

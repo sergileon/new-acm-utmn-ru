@@ -17,7 +17,7 @@
 		<div id="includedContent"></div>
 		<br><br><br><br>
 		<center>
-			<h2>No contest at the moment</h2>
+			<h2><font color="white">No contest at the moment</font></h2>
 		</center>
 	</body> 
 </html>

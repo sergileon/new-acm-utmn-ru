@@ -13,6 +13,7 @@
 		</script> 
 	</head> 
 
+	<font color="white">
 	<body> 
 		<div id="includedContent"></div>
 		<br><br><br><br>
@@ -21,5 +22,10 @@
 		</center>
 
 	</body> 
+	</font>
+	
+	<style type="text/css">
+		body { background: url('images/bk.jpg'); !important; }
+	</style>
 	
 </html>
