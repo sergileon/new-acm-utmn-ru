@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 
 import ru.sibint.olymp.checker.Checker;
 import ru.sibint.olymp.checker.CheckingInfo;
+import ru.sibint.olymp.dbsync.DBProxy;
 
 @Path("/rest/")
 public class APIEndpoint {
@@ -171,7 +172,7 @@ public class APIEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getSubmissions() {
-		return "[{\"id\":\"2\",\"auth\":\"107th\",\"verd\":\"AC\",\"time\":\"0.001\",\"mem\":\"765 K\"}, {\"id\":\"3\",\"auth\":\"some\",\"verd\":\"AC\",\"time\":\"0.001\",\"mem\":\"765 K\"}]";
+		return DBProxy.getSubmissions(10);
 	}
 	
 }
