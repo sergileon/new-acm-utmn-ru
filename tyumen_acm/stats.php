@@ -21,6 +21,12 @@
 			<h2>Authors rating:</h2>
 		</center>
 
+	<center>
+	<table width="100%">
+		<tbody>
+			<tr>
+			<td width="10%"></td>
+			<td>
 	<div class="table-responsive">
 		<center>
 		<table class="table table-hover">
@@ -61,6 +67,11 @@ $conn->close();
 		  </table>
   		<center>
 	</div>
+			</td><td width="10%"></td>
+			</tr>
+		</tbody>
+	</table>
+	</center>
 		
 		
 	</body> 

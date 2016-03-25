@@ -33,8 +33,9 @@
 						<table class="table table-hover" id="submissions">
 							<thead>
 							  <tr>
-								<th><center>Task #</center></th>
+								<th><center>#</center></th>
 								<th><center>Author</center></th>
+								<th><center>Task #</center></th>
 								<th><center>Verdict</center></th>
 								<th><center>Time</center></th>
 								<th><center>Memory</center></th>
@@ -64,11 +65,11 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<label for="comment">User Id:</label>
-			<input type="text" class="form-control" id="userid">
+			<label for="comment">User Email:</label>
+			<input type="text" class="form-control" id="usermail"/>
 			<br>
 			<label for="comment">Task Id:</label>
-			<input type="text" class="form-control" id="taskid">
+			<input type="text" class="form-control" id="taskid"/>
 			<br>
 			<label for="sel1">Language:</label>
 			<select class="form-control" id="language">
@@ -91,6 +92,32 @@
 	    </div>
 	  </div>
 	</div>
+
+	<div id="registerWindow" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Register user</h4>
+	      </div>
+	      <div class="modal-body">
+		<div class="form-group">
+			<label for="comment">Your Name:</label>
+			<input type="text" class="form-control" id="username"/>
+			<br>
+			<label for="comment">Your Email:</label>
+			<input type="text" class="form-control" id="useremail"/>
+		</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" id="register">Register</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	
 	<nav class="navbar navbar-default  navbar-fixed" role="navigation">
 	  <div class="container-fluid">
 		<div class="navbar-header">
@@ -126,17 +153,16 @@
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">User<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
-				<li><a href="#">Log In/Sign In</a></li>
+				<li><a href="#" data-toggle="modal" data-target="#registerWindow"><center>Register</center></a></li>
 				<li class="divider"></li>
-				<li><a href="#">My profile</a></li>
 			  </ul>
 			</li>
 		  </ul>
 		  <form class="navbar-form navbar-right" role="search">
 			<div class="form-group">
-			  <input type="text" class="form-control" placeholder="Search">
+			  <input type="text" class="form-control" placeholder="Search" disabled="true">
 			</div>
-			<button type="submit" class="btn btn-default">Search</button>
+			<button type="submit" class="btn btn-default disabled">Search</button>
 		  </form>
 		</div>
 	  </div>
@@ -157,7 +183,7 @@
 						$("#submissions tr:last").remove();
 					}
 					for(i = 0; i < data.length; i++) {
-						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
+						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {
@@ -187,15 +213,14 @@
 			var sc = $("#sourcecode").val();
 			var lng = $("#language").val();
 			var tid = $("#taskid").val();
-			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=1";
-			alert(url);
+			var usm = $("#usermail").val();
+			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=" + usm;
 			$.ajax({
 				type: "POST",
 				url: url,
 				data: sc,
 				contentType: "text/plain",
 				success: function(jqXHR, data, textStatus) {
-					alert('success: ' + textStatus + data);
 				},
 				error: function (jqXHR, exception) {
 					var msg = '';
@@ -219,6 +244,44 @@
 			});			
 						
 			$("#submitWindow").modal('hide');
+			return true;
+		});
+	
+		$("#register").click(function () {
+			var nam = $("#username").val();
+			var ema = $("#useremail").val();
+			var url = "/olymp/api/rest/adduser";
+			var json = '{"username":"' + nam + '", "email":"' + ema + '"}';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: json,
+				contentType: "application/json",
+				success: function(jqXHR, data, textStatus) {
+
+				},
+				error: function (jqXHR, exception) {
+					var msg = '';
+					if (jqXHR.status === 0) {
+						msg = 'Not connect. Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					}
+					alert(msg);
+				}
+			});
+			$("#registerWindow").modal('hide');
+			alert("Password and instructions are sent to your email.");
 			return true;
 		});
 	</script>

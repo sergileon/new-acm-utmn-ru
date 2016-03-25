@@ -3,7 +3,7 @@
 		<title>Association of Tyumen Coders</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="css/bootstrap.css" rel="stylesheet" media="screen">
 		<link href="css/dopstyle.css" rel="stylesheet" media="screen">	  
 		<script src="js/jquery.js"></script> 
 		<script> 
@@ -20,8 +20,14 @@
 	<br><br><br>
 	<center>
 	
+	<center>
+	<table width="100%">
+		<tbody>
+			<tr>
+			<td width="10%"></td>
+			<td>
 	<div class="table-responsive">
-	<table class="table" style="border-top: none;">
+	<table class="table table-borderless" width="80%">
 		<thead>
 		  <tr>
 			<th></th>
@@ -53,7 +59,7 @@ if ($result->num_rows > 0) {
 		//echo "<tr><td></td><td><center><h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center></td><td></td></tr>";
 		$taskid = $row["Id"];
 		echo "<tr><td colspan=\"3\"><center><h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center></td></tr>";
-		echo "<tr><td></td><td><h3>Description:</h3><br>" . $row["Description"] . "<br><br></td><td></td></tr>";
+		echo "<tr><td></td><td><h3>Description:</h3><br><p class=\"text-info\" align=\"justify\">" . $row["Description"] . "</p><br><br></td><td></td></tr>";
     }
 	echo "<tr><td></td><td><h3>Sample input: </h3><br></td><td></td></tr>"; 
 	echo "<tr><td></td><td><h3>Sample output: </h3><br></td><td></td></tr>"; 
@@ -73,6 +79,12 @@ $conn->close();
 			</tr>
 		</tbody>
 	</table>
+	</div>
+			</td><td width="10%"></td>
+			</tr>
+		</tbody>
+	</table>
+	</center>
 	
 	<script>
 	

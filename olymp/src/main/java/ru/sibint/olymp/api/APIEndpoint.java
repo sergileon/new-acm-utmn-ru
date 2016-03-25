@@ -20,8 +20,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONObject;
+
 import ru.sibint.olymp.checker.Checker;
 import ru.sibint.olymp.checker.CheckingInfo;
+import ru.sibint.olymp.checker.CheckingResult;
 import ru.sibint.olymp.dbsync.DBProxy;
 
 @Path("/rest/")
@@ -46,14 +49,14 @@ public class APIEndpoint {
 		}
 	}
 	
-	@Path("/submit")
+	@Path("/submit/")
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processSubmission(
 			@QueryParam("ext") String ext, 
 			@QueryParam("taskId") Integer taskId, 
-			@QueryParam("userId") Integer userId, 
+			@QueryParam("userId") String userId, 
 			InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
@@ -81,9 +84,9 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
-		//System.out.println(ext + " " + taskId + " " + userId);
-		
 		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId);
+		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
+		DBProxy.addSubmission(userId, taskId.toString(), result.getCheckingResult().toString(), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
 		
 		return "SUCCESS: " + result.toString();
 	}
@@ -99,6 +102,11 @@ public class APIEndpoint {
 			String line = "";
 			while((line = in.readLine()) != null)
 				stringData.append(line);
+			System.out.println(stringData.toString());
+			
+			JSONObject obj = new JSONObject(stringData.toString());
+			DBProxy.addUser(obj.getString("username"), obj.getString("email"));
+			
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
@@ -123,7 +131,7 @@ public class APIEndpoint {
 	}
 	
 	
-	@Path("/addtasktest")
+	@Path("/addtasktest/")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -137,28 +145,7 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "{\"Status\":\"SUCCESS\"}";
-	}
-	
-	@Path("/tasklist/")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getTaskList() {
-		return "{\"Status\":\"SUCCESS\"}";
-	}
-	
-	@Path("/taskinfo")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getTaskInfo(@QueryParam("taskId") Integer taskId) {
-		return "{\"Status\":\"SUCCESS\"}";
-	}
-	
-	@Path("/usertasklist")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getUserTaskList(@QueryParam("userId") Integer userId) {
-		return "{\"Status\":\"SUCCESS\"}";
+		return "{\"Status\":\"success\"}";
 	}
 	
 	@Path("/serverstatus/")
