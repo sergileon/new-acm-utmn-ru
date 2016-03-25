@@ -32,6 +32,7 @@ public class APIEndpoint {
 
 	final static String propertiesFile = "config.properties";
 	static String tempDir = "C:\\temp\\";
+	static String archivePath = "";
 	Properties properties = null; 
 	
 	static Logger logger = Logger.getGlobal();
@@ -42,6 +43,10 @@ public class APIEndpoint {
 		if(configStream != null) {
 			try {
 				properties.load(configStream);
+				tempDir = properties.getProperty("tempdir");
+				archivePath = properties.getProperty("archivedir");
+				System.out.println(tempDir);
+				System.out.println(archivePath);				
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Can not load properties file");
 				logger.log(Level.SEVERE, e.getMessage());
@@ -84,9 +89,9 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
-		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId);
+		CheckingInfo result = Checker.checkProgram(archivePath, tempDir, fileName, taskId);
 		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
-		DBProxy.addSubmission(userId, taskId.toString(), result.getCheckingResult().toString(), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
+		DBProxy.addSubmission(userId, taskId.toString(), result.getCheckingResult().toString(), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), String.valueOf(result.getTestNumber()));
 		
 		return "SUCCESS: " + result.toString();
 	}

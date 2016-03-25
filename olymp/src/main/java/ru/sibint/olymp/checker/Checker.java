@@ -76,7 +76,6 @@ public class Checker {
 
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
-	final static String archivePath = "C:\\Users\\Андрей\\Downloads\\acm\\";
 	private static long lastTime = 0;
 	private static long lastMem = 0;
 
@@ -137,7 +136,7 @@ public class Checker {
 		return testChecker.getAnswer();
 	}
 
-	private static CheckingInfo check(String path, String fileName, int taskId, String progType) {
+	private static CheckingInfo check(String archivePath, String path, String fileName, int taskId, String progType) {
 		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
 		String taskPath = archivePath + taskId;
 		int n = new File(taskPath + "\\tests\\").listFiles().length / 2;
@@ -168,17 +167,17 @@ public class Checker {
 		return cInfo;
 	}
 	
-	public static CheckingInfo checkProgram(String path, String fileName, int taskId) {
+	public static CheckingInfo checkProgram(String archivePath, String path, String fileName, int taskId) {
 		if(fileName.endsWith(".cpp")) {
 			Compiler.compileCPlusPlus(path, fileName);
-			return check(path, fileName, taskId, "EXE");
+			return check(archivePath, path, fileName, taskId, "EXE");
 		} else
 		if(fileName.endsWith(".cs")) {
 			Compiler.compileCSharp(path, fileName);
-			return check(path, fileName, taskId, "EXE");
+			return check(archivePath, path, fileName, taskId, "EXE");
 		} else
 		if(fileName.endsWith(".java")) {
-			return check(path, fileName, taskId, "JAVA");
+			return check(archivePath, path, fileName, taskId, "JAVA");
 		}
 		return null;
 	}

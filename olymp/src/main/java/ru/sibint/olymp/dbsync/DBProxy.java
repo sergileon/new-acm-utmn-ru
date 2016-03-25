@@ -32,7 +32,7 @@ public class DBProxy {
 		try {
 			Statement stm = connectionMysql.createStatement();
 			stm.setFetchSize(1000);
-			String qury = "SELECT Submission.Id, UserApp.Name as Name, TaskId, Verdict, TimeSpent, MemorySpent FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count);
+			String qury = "SELECT Submission.Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count);
 			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
 		    stm.execute(qury);
 			ResultSet rs = stm.getResultSet();
@@ -44,8 +44,9 @@ public class DBProxy {
 						"\"auth\":\"" + rs.getString(2) + "\"," +
 						"\"task\":\"" + rs.getString(3) + "\"," +
 						"\"verd\":\"" + rs.getString(4) + "\"," +
-						"\"time\":\"" + rs.getString(5) + "\"," +
-						"\"mem\":\"" + rs.getString(6) + "\"}";
+						"\"testid\":\"" + rs.getString(5) + "\"," +
+						"\"time\":\"" + rs.getString(6) + "\"," +
+						"\"mem\":\"" + rs.getString(7) + "\"}";
 				bl = true;
 			}
 			result += "]";
@@ -99,7 +100,7 @@ public class DBProxy {
 		}
 	}
 	
-	public static void addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask) {
+	public static void addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
 		Connection connectionMysql = null;
 		
 		try {
@@ -130,7 +131,7 @@ public class DBProxy {
 				userId = rs1.getString(1);
 				System.out.println(rs1.getString(1));
 			}
-			String qury = "INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "')";
+			String qury = "INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')";
 
 			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
 			stm.execute(qury);

@@ -26,6 +26,7 @@ CREATE TABLE Submission
 (
     Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     TaskId INT NOT NULL,
+    TestId INT,
     Verdict TEXT,
     TimeSpent INT,
     MemorySpent INT,
