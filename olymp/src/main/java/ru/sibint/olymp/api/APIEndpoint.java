@@ -167,4 +167,11 @@ public class APIEndpoint {
 		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
 	}
 	
+	@Path("/submitstatus/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getSubmissions() {
+		return "[{\"id\":\"2\",\"auth\":\"107th\",\"verd\":\"AC\",\"time\":\"0.001\",\"mem\":\"765 K\"}, {\"id\":\"3\",\"auth\":\"some\",\"verd\":\"AC\",\"time\":\"0.001\",\"mem\":\"765 K\"}]";
+	}
+	
 }

@@ -19,7 +19,7 @@
 
 	<br><br><br>
 	<center>
-		<h2>Tyumen State University: Volume 1</h2>
+		<h2>Online Contester: Problem Set</h2>
 	</center>
 	<br><br><br>	
 	

@@ -30,7 +30,7 @@
 				<div class="modal-isi-body">
 					<div class="table-responsive">
 						<center>
-						<table class="table table-hover">
+						<table class="table table-hover" id="submissions">
 							<thead>
 							  <tr>
 								<th><center>Task #</center></th>
@@ -41,20 +41,13 @@
 							  </tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td><center>1</center></td>
-									<td><center>107th</center></td>
-									<td><center>AC</center></td>
-									<td><center>0.001</center></td>
-									<td><center>1 KB</center></td>
-								</tr>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Update</button>
+	        <button type="button" class="btn btn-default" id="updatestatus">Update</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
@@ -71,6 +64,12 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
+			<label for="comment">User Id:</label>
+			<input type="text" class="form-control" id="userid">
+			<br>
+			<label for="comment">Task Id:</label>
+			<input type="text" class="form-control" id="taskid">
+			<br>
 			<label for="sel1">Language:</label>
 			<select class="form-control" id="language">
 				<option value="cpp">MS Visual C++ 2013</option>
@@ -78,9 +77,6 @@
 				<option value="java">Java 1.8</option>
 				<option value="pas">Pascal</option>
 			</select>
-			<br>
-			<label for="comment">Task Id:</label>
-			<input type="text" class="form-control" id="taskid">
 			<br>
 			<label for="comment">Your code:</label>
 			<code class="language-c"> 
@@ -112,9 +108,9 @@
 
 		  <ul class="nav navbar-nav">
 			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Problem Set<b class="caret"></b></a>
+			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Main Menu<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
-				<li><a href="volume.php?volume=1">Volume 1</a></li>
+				<li><a href="volume.php?volume=1">Problem Set</a></li>
 				<li class="divider"></li>
 				<li><a href="contest.php">Contest</a></li>
 				<li class="divider"></li>
@@ -150,6 +146,43 @@
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
 	<script>
+	
+		$("#updatestatus").click(function () {
+			$.ajax({
+				type: "GET",
+				url: "/olymp/api/rest/submitstatus",
+				dataType: "json",
+				success: function(data) {
+					while($('#submissions tr').length > 1) {
+						$("#submissions tr:last").remove();
+					}
+					for(i = 0; i < data.length; i++) {
+						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
+					}
+				},
+				error: function (jqXHR, exception) {
+					var msg = '';
+					if (jqXHR.status === 0) {
+						msg = 'Not connect. Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.\n' + jqXHR.responseText;
+					}
+					alert(msg);
+				}
+			});
+			return true;
+		});
+	
 		$("#submit").click(function () {
 			var sc = $("#sourcecode").val();
 			var lng = $("#language").val();
