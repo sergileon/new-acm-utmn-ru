@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,8 +77,12 @@ public class APIEndpoint {
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		
-		String fileName = "source" + System.currentTimeMillis() + "." + ext;
+
+		int id = DBProxy.addSubmission(userId, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0");
+		if(id == -1) {
+			return "FAILED";
+		}
+		String fileName = String.valueOf(id) + "." + ext;
 		File F = new File(tempDir + fileName);
 		PrintWriter pw = null;
 		try {
@@ -91,8 +98,18 @@ public class APIEndpoint {
 		
 		CheckingInfo result = Checker.checkProgram(archivePath, tempDir, fileName, taskId);
 		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
-		DBProxy.addSubmission(userId, taskId.toString(), result.getCheckingResult().toString(), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), String.valueOf(result.getTestNumber()));
+		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
 		
+		try {
+			System.out.println(Paths.get(String.valueOf(id) + ".obj").toAbsolutePath().toString());
+			System.out.println(tempDir + String.valueOf(id) + ".exe");
+			System.out.println(Paths.get(tempDir + String.valueOf(id) + ".exe").toAbsolutePath().toString());
+			Files.deleteIfExists(Paths.get(String.valueOf(id) + ".obj"));
+			Files.deleteIfExists(Paths.get(tempDir + String.valueOf(id) + ".exe"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return "SUCCESS: " + result.toString();
 	}
 	
@@ -158,6 +175,24 @@ public class APIEndpoint {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getServerStatus() {
 		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
+	}
+	
+	@Path("/getsubmission/")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getSubmission(@QueryParam("id") Integer id) {
+		String fileName = tempDir + String.valueOf(id) + ".cpp";
+		try {
+			Scanner S = new Scanner(new File(fileName));
+			String result = "";
+			while(S.hasNextLine()) {
+				result = result + S.nextLine() + "\n";
+			}
+			return result;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 	
 	@Path("/submitstatus/")

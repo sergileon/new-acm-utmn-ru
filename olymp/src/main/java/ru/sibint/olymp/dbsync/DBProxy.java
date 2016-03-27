@@ -100,7 +100,60 @@ public class DBProxy {
 		}
 	}
 	
-	public static void addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
+	public static int addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
+		Connection connectionMysql = null;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return -1;
+		}		
+		
+		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
+		
+		try {
+			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+
+		int id = -1;
+		String userId = "1";
+		String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userEmail + "'";
+		System.out.println(selectIdQuery);
+		try {
+			Statement stm = connectionMysql.createStatement();
+			stm.setFetchSize(1000);
+		    
+			ResultSet rs1 = stm.executeQuery(selectIdQuery);
+			while(rs1.next()) {
+				userId = rs1.getString(1);
+				System.out.println(rs1.getString(1));
+			}
+			String qury = "INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')";
+
+			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
+			stm = connectionMysql.prepareStatement(qury, Statement.RETURN_GENERATED_KEYS);
+			stm.executeUpdate(qury);
+			rs1 = stm.getGeneratedKeys();
+		    if(rs1.next()) {
+		    	id = rs1.getInt(1);
+		    }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		} finally {
+			try {
+				connectionMysql.close();
+			} catch (SQLException e) {
+			}
+			return id;
+		}
+	}
+
+	public static void updateSubmission(String id, String verdict, String testId, String timeForTask, String memoryForTask) {
 		Connection connectionMysql = null;
 		
 		try {
@@ -119,23 +172,16 @@ public class DBProxy {
 			return;
 		}
 
-		String userId = "1";
-		String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userEmail + "'";
-		System.out.println(selectIdQuery);
 		try {
 			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-		    
-			ResultSet rs1 = stm.executeQuery(selectIdQuery);
-			while(rs1.next()) {
-				userId = rs1.getString(1);
-				System.out.println(rs1.getString(1));
-			}
-			String qury = "INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')";
+			String qury = "UPDATE Submission SET "
+					+ "Verdict = '" + verdict + "', "
+					+ "TimeSpent = " + timeForTask + ", "
+					+ "MemorySpent = " + memoryForTask + ", "
+					+ "TestId = " + testId + " WHERE Id = " + id;
 
 			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
 			stm.execute(qury);
-		    
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return;
