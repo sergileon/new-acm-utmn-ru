@@ -37,8 +37,6 @@
 								<th><center>Task #</center></th>
 								<th><center>Verdict</center></th>
 								<th><center>Test #</center></th>
-								<th><center>Time</center></th>
-								<th><center>Memory</center></th>
 							  </tr>
 							</thead>
 							<tbody>
@@ -183,7 +181,8 @@
 						$("#submissions tr:last").remove();
 					}
 					for(i = 0; i < data.length; i++) {
-						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
+						//$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
+						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {

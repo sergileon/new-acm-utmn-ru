@@ -29,7 +29,7 @@
 			<td>
 	<div class="table-responsive">
 		<center>
-		<table class="table table-hover">
+		<table class="table">
 			<thead>
 			  <tr>
 				<th><center><font color="white">Name</font></center></th>

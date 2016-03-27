@@ -32,14 +32,14 @@
 			<td>
 				<div class="table-responsive">
 					<center>
-					<table class="table table-hover">
+					<table class="table">
 						<thead>
 						  <tr>
-							<th>Task #</th>
-							<th>Name</th>
-							<th>Solutions count</th>
-							<th>Time Limit</th>
-							<th>Memory Limit</th>
+							<th align="right"><font color="white">Task #</font></th>
+							<th><font color="white">Name</font></th>
+							<th><font color="white">Solutions count</font></th>
+							<th><font color="white">Time Limit</font></th>
+							<th><font color="white">Memory Limit</font></th>
 						  </tr>
 						</thead>
 						<tbody>
