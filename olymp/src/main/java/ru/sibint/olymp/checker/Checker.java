@@ -137,21 +137,23 @@ public class Checker {
 	}
 
 	private static CheckingInfo check(String archivePath, String path, String fileName, int taskId, String progType) {
-		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
+		//String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
+		String newFileName = fileName + "exec";
 		String taskPath = archivePath + taskId;
-		int n = new File(taskPath + "\\tests\\").listFiles().length / 2;
+		System.out.println("Checking task on the path " + taskPath);
+		int n = new File(taskPath + "/tests/").listFiles().length / 2;
 		
 		CheckingInfo cInfo = new CheckingInfo();
 		cInfo.setVerdict(CheckingResult.AC);
 		for(int i = 1; i <= n; i++) {
-			String result = getProgramResult(path, newFileName, taskPath + "\\tests\\" + i + ".in", progType);
+			String result = getProgramResult(path, newFileName, taskPath + "/tests/" + i + ".in", progType);
 			if(result == null) {
 				cInfo.setTestNumber(i);
 				cInfo.setVerdict(CheckingResult.TLE);
 				cInfo.setTime(lastTime);
 				break;
 			}
-			if(!compareAnswers(getFileContents(taskPath + "\\tests\\" + i + ".out"), result)) {
+			if(!compareAnswers(getFileContents(taskPath + "/tests/" + i + ".out"), result)) {
 				cInfo.setTestNumber(i);
 				cInfo.setVerdict(CheckingResult.WA);
 				cInfo.setTime(lastTime);

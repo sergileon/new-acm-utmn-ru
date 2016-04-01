@@ -10,6 +10,8 @@ public class Compiler {
 
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
+	//static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
+	//static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
 	static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
 	static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
 	
@@ -38,11 +40,12 @@ public class Compiler {
 	}
 	
 	public static void compileCPlusPlus(String path, String fileName) {
-		executeCommand(VCPPPath + "vcvarsall.bat\" & " + VCPPPath + "bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		//executeCommand(VCPPPath + "vcvarsall.bat\" & " + VCPPPath + "bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		executeCommand("gcc " + path + fileName + " -o " + path + fileName + "exec");
 	}
 	
 	public static void compileCSharp(String path, String fileName) {
-		executeCommand(VCSPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		//executeCommand(VCSPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 }
