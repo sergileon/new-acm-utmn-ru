@@ -285,5 +285,5 @@
 		});
 	</script>
 	<style type="text/css">
-		body { background: url('images/bk.jpg'); !important; }
+		body { background: url('images/bk.jpg') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
 	</style>

@@ -63,58 +63,22 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<label for="comment">User Email:</label>
-			<input type="text" class="form-control" id="usermail"/>
+			<label for="comment"><font color="black">Task Title:</font></label>
+			<input type="text" class="form-control" id="tasktitle"/>
 			<br>
-			<label for="comment">Task Id:</label>
-			<input type="text" class="form-control" id="taskid"/>
-			<br>
-			<label for="sel1">Language:</label>
-			<select class="form-control" id="language">
-				<option value="cpp">MS Visual C++ 2013</option>
-				<option value="cs">MS Visual C# 2013</option>
-				<option value="java">Java 1.8</option>
-				<option value="pas">Pascal</option>
-			</select>
-			<br>
-			<label for="comment">Your code:</label>
+			<label for="comment"><font color="black">Description:</font></label>
 			<code class="language-c"> 
-				<textarea class="form-control" rows="25" id="sourcecode"></textarea>
+				<textarea class="form-control" rows="25" id="description"></textarea>
 			</code>
 		</div>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" id="submit">Submit</button>
+	        <button type="button" class="btn btn-default" id="submit">Add Task</button>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
 	  </div>
 	</div>
-
-	<div id="registerWindow" class="modal fade" role="dialog">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Register user</h4>
-	      </div>
-	      <div class="modal-body">
-		<div class="form-group">
-			<label for="comment">Your Name:</label>
-			<input type="text" class="form-control" id="username"/>
-			<br>
-			<label for="comment">Your Email:</label>
-			<input type="text" class="form-control" id="useremail"/>
-		</div>
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" id="register">Register</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-	
 	
 	<nav class="navbar navbar-default  navbar-fixed" role="navigation">
 	  <div class="container-fluid">
@@ -135,26 +99,11 @@
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Main Menu<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
-				<li><a href="volume.php?volume=1">Problem Set</a></li>
-				<li class="divider"></li>
-				<li><a href="contest.php">Create Contest</a></li>
-				<li class="divider"></li>
 				<li><a href="#" data-toggle="modal" data-target="#submitWindow">Add Task</a></li>
-				<li class="divider"></li>
-				<li><a href="forum.php">Forum</a></li>
 			  </ul>
 			</li>
 			<li><a href="#" data-toggle="modal" data-target="#statusWindow">Status</a></li>
 			<li><a href="stats.php">Statistics</a></li>
-		  </ul>
-		  <ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">User<b class="caret"></b></a>
-			  <ul class="dropdown-menu">
-				<li><a href="#" data-toggle="modal" data-target="#registerWindow"><center>Register</center></a></li>
-				<li class="divider"></li>
-			  </ul>
-			</li>
 		  </ul>
 		  <form class="navbar-form navbar-right" role="search">
 			<div class="form-group">
@@ -167,8 +116,8 @@
 	</nav>
 
 
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
 	<script>
 	
 		$("#updatestatus").click(function () {
@@ -209,16 +158,16 @@
 		});
 	
 		$("#submit").click(function () {
-			var sc = $("#sourcecode").val();
-			var lng = $("#language").val();
-			var tid = $("#taskid").val();
-			var usm = $("#usermail").val();
-			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=" + usm;
+			var desc = $("#description").val();
+			var titl = $("#tasktitle").val();
+			var url = "/olymp/api/rest/addtask";
+			var json = '{"title":"' + titl + '", "description":"' + desc + '"}';
+			alert(json);
 			$.ajax({
 				type: "POST",
 				url: url,
-				data: sc,
-				contentType: "text/plain",
+				data: json,
+				contentType: "application/json",
 				success: function(jqXHR, data, textStatus) {
 				},
 				error: function (jqXHR, exception) {
@@ -246,43 +195,6 @@
 			return true;
 		});
 	
-		$("#register").click(function () {
-			var nam = $("#username").val();
-			var ema = $("#useremail").val();
-			var url = "/olymp/api/rest/adduser";
-			var json = '{"username":"' + nam + '", "email":"' + ema + '"}';
-			$.ajax({
-				type: "POST",
-				url: url,
-				data: json,
-				contentType: "application/json",
-				success: function(jqXHR, data, textStatus) {
-
-				},
-				error: function (jqXHR, exception) {
-					var msg = '';
-					if (jqXHR.status === 0) {
-						msg = 'Not connect. Verify Network.';
-					} else if (jqXHR.status == 404) {
-						msg = 'Requested page not found. [404]';
-					} else if (jqXHR.status == 500) {
-						msg = 'Internal Server Error [500].';
-					} else if (exception === 'parsererror') {
-						msg = 'Requested JSON parse failed.';
-					} else if (exception === 'timeout') {
-						msg = 'Time out error.';
-					} else if (exception === 'abort') {
-						msg = 'Ajax request aborted.';
-					} else {
-						msg = 'Uncaught Error.\n' + jqXHR.responseText;
-					}
-					alert(msg);
-				}
-			});
-			$("#registerWindow").modal('hide');
-			alert("Password and instructions are sent to your email.");
-			return true;
-		});
 	</script>
 	<style type="text/css">
 		body { background: url('images/bk.jpg') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}

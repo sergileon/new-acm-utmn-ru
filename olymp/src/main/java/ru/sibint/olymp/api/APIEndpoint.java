@@ -146,6 +146,10 @@ public class APIEndpoint {
 			String line = "";
 			while((line = in.readLine()) != null)
 				stringData.append(line);
+
+			System.out.println(stringData.toString());
+			JSONObject obj = new JSONObject(stringData.toString());
+			DBProxy.addTask(obj.getString("title"), obj.getString("description"));
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}

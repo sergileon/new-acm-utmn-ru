@@ -100,6 +100,43 @@ public class DBProxy {
 		}
 	}
 	
+	public static void addTask(String title, String description) {
+		Connection connectionMysql = null;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}		
+		
+		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
+		
+		try {
+			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		try {
+			Statement stm = connectionMysql.createStatement();
+			stm.setFetchSize(1000);
+			String qury = "INSERT INTO Task (Name, Description) VALUES ('" + title + "', '" + description + "')";
+			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
+		    stm.execute(qury);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		} finally {
+			try {
+				connectionMysql.close();
+			} catch (SQLException e) {
+			}
+			return;
+		}
+	}
+	
 	public static int addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
 		Connection connectionMysql = null;
 		
