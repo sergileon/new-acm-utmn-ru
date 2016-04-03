@@ -280,10 +280,10 @@
 				}
 			});
 			$("#registerWindow").modal('hide');
-			alert("Password and instructions are sent to your email.");
+			alert("Submit your tasks using your email as login name.");
 			return true;
 		});
 	</script>
 	<style type="text/css">
-		body { background: url('images/bk.jpg') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
+		body { background: rgb(94,94,94) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
 	</style>

@@ -25,7 +25,7 @@
 	</font>
 	
 	<style type="text/css">
-		body { background: url('images/bk.jpg'); !important; }
+		body { background: rgb(94,94,94); !important; }
 	</style>
 	
 </html>

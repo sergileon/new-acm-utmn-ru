@@ -3,9 +3,9 @@
 		<title>Association of Tyumen Coders</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link href="css/bootstrap.css" rel="stylesheet" media="screen">
-		<link href="css/dopstyle.css" rel="stylesheet" media="screen">	  
-		<script src="js/jquery.js"></script> 
+		<link href="../css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="../css/dopstyle.css" rel="stylesheet" media="screen">	  
+		<script src="../js/jquery.js"></script> 
 		<script> 
 		$(function(){
 		  $("#includedContent").load("menu.php"); 
@@ -54,8 +54,17 @@ $sql = "SELECT Id, Name, Description FROM Task " . " WHERE Id = " . $_GET["id"];
 $result = $conn->query($sql);
 $taskid = 1;
 
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_URL, "http://localhost/olymp/api/rest/getasktestin?taskId=" . $_GET["id"] . "&testId=1");
+$inTest = curl_exec($ch);
+curl_setopt($ch, CURLOPT_URL, "http://localhost/olymp/api/rest/getasktestout?taskId=" . $_GET["id"] . "&testId=1");
+$outTest = curl_exec($ch);
+curl_close($ch);
+
 if ($result->num_rows > 0) {
     // output data of each row
+	
     while($row = $result->fetch_assoc()) {
 		//echo "<tr><td></td><td><center><h2>" . $row["Id"] . ". " . $row["Name"] . "</h2><br><br></center></td><td></td></tr>";
 		$taskid = $row["Id"];
@@ -63,7 +72,9 @@ if ($result->num_rows > 0) {
 		echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\">" . $row["Description"] . "</font></p><br><br></td><td></td></tr>";
     }
 	echo "<tr><td></td><td><h3><font color=\"white\">Sample input: </font></h3><br></td><td></td></tr>"; 
+	echo "<tr><td></td><td><font color=\"white\">" . $inTest . "</font></td><td></td></tr>"; 
 	echo "<tr><td></td><td><h3><font color=\"white\">Sample output: </font></h3><br></td><td></td></tr>"; 
+	echo "<tr><td></td><td><font color=\"white\">" . $outTest . "</font></td><td></td></tr>"; 
 }
 
 $conn->close();
@@ -74,8 +85,7 @@ $conn->close();
 				<td></td><td></td>
 				<td>
 					<center>
-						<button><a href="forum.php?taskid=<?php echo $taskid; ?>">Forum</a></button>
-						<button id="openSubmit"><a href="#" data-toggle="modal" data-target="#submitWindow" id="oS">Submit</a></button>
+						<button><a href="volume.php?volume=1">Back</a></button>
 					</center>
 				</td>
 			</tr>

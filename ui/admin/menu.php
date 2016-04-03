@@ -104,6 +104,8 @@
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Main Menu<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
+				<li><a href="volume.php?volume=1">Problem Set</a></li>
+				<li class="divider"></li>
 				<li><a href="#" data-toggle="modal" data-target="#submitWindow">Add Task</a></li>
 			  </ul>
 			</li>
@@ -221,5 +223,5 @@
 	
 	</script>
 	<style type="text/css">
-		body { background: url('images/bk.jpg') no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
+		body { background: rgb(94,94,94) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
 	</style>

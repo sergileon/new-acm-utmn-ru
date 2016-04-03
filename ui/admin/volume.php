@@ -3,9 +3,9 @@
 		<title>Association of Tyumen Coders</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-		<link href="css/dopstyle.css" rel="stylesheet" media="screen">	  
-		<script src="js/jquery.js"></script> 
+		<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="../css/dopstyle.css" rel="stylesheet" media="screen">	  
+		<script src="../js/jquery.js"></script> 
 		<script> 
 		$(function(){
 		  $("#includedContent").load("menu.php"); 
@@ -57,10 +57,12 @@
 							$sql = "SELECT Id, Name FROM Task";
 							$result = $conn->query($sql);
 
+							$rowId = 0;
 							if ($result->num_rows > 0) {
 								while($row = $result->fetch_assoc()) {
+									$rowId++;
 									echo "<tr>";
-									echo "<td><font color=\"white\">" . $row["Id"] . "</font></td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\"><font color=\"white\">" . $row["Name"] . "</font></a></td>";
+									echo "<td><font color=\"white\">" . $rowId . "</font></td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\"><font color=\"white\">" . $row["Name"] . "</font></a></td>";
 									echo "<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>";
 									echo "</tr>\n";
 								}

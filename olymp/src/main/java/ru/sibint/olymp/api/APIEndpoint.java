@@ -220,6 +220,46 @@ public class APIEndpoint {
 	public String getServerStatus() {
 		return "Server is up and runs application of version " + properties.getProperty("version") + ".\n" + "Operation system is " + System.getProperty("os.name");
 	}
+
+	@Path("/getasktestin/")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getTaskTestIn(
+			@QueryParam("taskId") Integer taskId, 
+			@QueryParam("testId") Integer testId) {
+		
+		String testContents = "";
+		File F = new File(archivePath + "/" + taskId + "/tests/" + testId + ".in");
+		try {
+			Scanner S = new Scanner(F);
+			while(S.hasNextLine()) {
+				testContents += S.nextLine() + "<br>";
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return testContents;
+	}
+	
+	@Path("/getasktestout/")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getTaskTestOut(
+			@QueryParam("taskId") Integer taskId, 
+			@QueryParam("testId") Integer testId) {
+		
+		String testContents = "";
+		File F = new File(archivePath + "/" + taskId + "/tests/" + testId + ".out");
+		try {
+			Scanner S = new Scanner(F);
+			while(S.hasNextLine()) {
+				testContents += S.nextLine() + "<br>";
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return testContents;
+	}
 	
 	@Path("/getsubmission/")
 	@GET
