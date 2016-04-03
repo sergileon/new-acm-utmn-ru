@@ -100,14 +100,14 @@ public class DBProxy {
 		}
 	}
 	
-	public static void addTask(String title, String description) {
+	public static Integer addTask(String title, String description) {
 		Connection connectionMysql = null;
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}		
 		
 		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
@@ -116,24 +116,30 @@ public class DBProxy {
 			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}
 
+		Integer id = -1;
 		try {
 			Statement stm = connectionMysql.createStatement();
 			stm.setFetchSize(1000);
 			String qury = "INSERT INTO Task (Name, Description) VALUES ('" + title + "', '" + description + "')";
 			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
+			stm = connectionMysql.prepareStatement(qury, Statement.RETURN_GENERATED_KEYS);
+			stm.executeUpdate(qury);
+			ResultSet rs1 = stm.getGeneratedKeys();
+		    if(rs1.next()) {
+		    	id = rs1.getInt(1);
+		    }
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		} finally {
 			try {
 				connectionMysql.close();
 			} catch (SQLException e) {
 			}
-			return;
+			return id;
 		}
 	}
 	

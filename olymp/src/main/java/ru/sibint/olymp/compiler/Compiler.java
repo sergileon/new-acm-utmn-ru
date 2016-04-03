@@ -15,7 +15,7 @@ public class Compiler {
 	static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
 	static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
 	
-	private static void executeCommand(String command) {
+	public static void executeCommand(String command) {
 		try {
 			Process p = Runtime.getRuntime().exec(command);
 			p.waitFor();

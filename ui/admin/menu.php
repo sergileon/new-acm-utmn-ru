@@ -63,13 +63,18 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<label for="comment"><font color="black">Task Title:</font></label>
-			<input type="text" class="form-control" id="tasktitle"/>
-			<br>
-			<label for="comment"><font color="black">Description:</font></label>
-			<code class="language-c"> 
-				<textarea class="form-control" rows="25" id="description"></textarea>
-			</code>
+			<form id="fileform" enctype="multipart/form-data">
+				<label for="comment"><font color="black">Task Title:</font></label>
+				<input type="text" class="form-control" id="tasktitle"/>
+				<br>
+				<label for="comment"><font color="black">Description:</font></label>
+				<code class="language-c"> 
+					<textarea class="form-control" rows="25" id="description"></textarea>
+				</code>
+				<br>
+				<label for="comment"><font color="black">Tests file:</font></label>
+				<input type="file" name="tests" id="tests" accept=".zip">
+			</form>
 		</div>
 	      </div>
 	      <div class="modal-footer">
@@ -162,13 +167,32 @@
 			var titl = $("#tasktitle").val();
 			var url = "/olymp/api/rest/addtask";
 			var json = '{"title":"' + titl + '", "description":"' + desc + '"}';
-			alert(json);
+			var taskid = "1";
 			$.ajax({
 				type: "POST",
 				url: url,
 				data: json,
 				contentType: "application/json",
-				success: function(jqXHR, data, textStatus) {
+				
+				success: function(response) {
+					taskid = response.id;
+					console.log(response);
+					var formData = new FormData();
+					formData.append('tests', $('input[name="tests"').get(0).files[0]);
+					
+					$.ajax({
+					  url : '/olymp/api/rest/addtasktest?taskId=' + taskid,
+					  type : 'POST',
+					  data : formData,
+					  cache : false,
+					  contentType : false,
+					  processData : false,
+					  success : function(data, textStatus, jqXHR) {
+							var message = jqXHR.responseText;
+					  },
+					  error : function(jqXHR, textStatus, errorThrown) {
+					  }
+					});
 				},
 				error: function (jqXHR, exception) {
 					var msg = '';
@@ -189,7 +213,7 @@
 					}
 					alert(msg);
 				}
-			});			
+			});
 						
 			$("#submitWindow").modal('hide');
 			return true;

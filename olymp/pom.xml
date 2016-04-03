@@ -44,6 +44,11 @@
 		<artifactId>mysql-connector-java</artifactId>
 		<version>5.1.6</version>
 	</dependency>
+	<dependency>
+		<groupId>com.sun.jersey.contribs</groupId>
+		<artifactId>jersey-multipart</artifactId>
+		<version>1.19</version>
+	</dependency>
 	
   </dependencies>
   <build>

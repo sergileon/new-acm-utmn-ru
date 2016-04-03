@@ -3,25 +3,31 @@ package ru.sibint.olymp.api;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 import org.json.JSONObject;
 
@@ -36,6 +42,7 @@ public class APIEndpoint {
 	final static String propertiesFile = "config.properties";
 	static String tempDir = "C:\\temp\\";
 	static String archivePath = "";
+	static String unzip = "";
 	Properties properties = null; 
 	
 	static Logger logger = Logger.getGlobal();
@@ -48,6 +55,7 @@ public class APIEndpoint {
 				properties.load(configStream);
 				tempDir = properties.getProperty("tempdir");
 				archivePath = properties.getProperty("archivedir");
+				unzip = properties.getProperty("unzipcommand");
 				System.out.println(tempDir);
 				System.out.println(archivePath);				
 			} catch (IOException e) {
@@ -141,6 +149,7 @@ public class APIEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String addTask(InputStream data) {
 		StringBuilder stringData = new StringBuilder();
+		Integer id = -1;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(data));
 			String line = "";
@@ -149,28 +158,59 @@ public class APIEndpoint {
 
 			System.out.println(stringData.toString());
 			JSONObject obj = new JSONObject(stringData.toString());
-			DBProxy.addTask(obj.getString("title"), obj.getString("description"));
+			id = DBProxy.addTask(obj.getString("title"), obj.getString("description"));
+			System.out.println(id);
+			if(id == -1) {
+				return "{\"Status\":\"FAIL\",\"id\":\"" + id.toString() + "\"}";
+			}
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "{\"Status\":\"SUCCESS\"}";
+		return "{\"Status\":\"SUCCESS\",\"id\":\"" + id.toString() + "\"}";
 	}
 	
 	
 	@Path("/addtasktest/")
 	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addTaskTest(@QueryParam("taskId") Integer taskId, InputStream data) {
-		StringBuilder stringData = new StringBuilder();
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public String addTaskTest(
+			@QueryParam("taskId") Integer taskId, 
+			@FormDataParam("tests") InputStream uploadedInputStream,
+			@FormDataParam("tests") FormDataContentDisposition fileMetaData) {
+		OutputStream out = null;
+		String extractCommand = "";
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(data));
-			String line = "";
-			while((line = in.readLine()) != null)
-				stringData.append(line);
+
+			String uploadedFileLocation = archivePath + "/" + taskId.toString() + "/tests/";
+
+			if(!Files.exists(Paths.get(archivePath + "/" + taskId.toString()), LinkOption.NOFOLLOW_LINKS)) {
+				System.out.println("Dir doesn't exists.");
+				(new File(uploadedFileLocation)).mkdirs();
+			}
+			System.out.println("Saving file as " + uploadedFileLocation + "tests.zip");
+			
+	        int read = 0;
+	        byte[] bytes = new byte[1024];
+
+	        out = new FileOutputStream(new File(uploadedFileLocation + "tests.zip"));
+	        while ((read = uploadedInputStream.read(bytes)) != -1) {
+	            out.write(bytes, 0, read);
+	        }
+	        System.out.println("Uploading done.");
+	        extractCommand = unzip + " e \"" + uploadedFileLocation + "tests.zip\" -o\"" + uploadedFileLocation + "\"";
+	        System.out.println(extractCommand);
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		} finally {
+	        try {
+				out.flush();
+		        out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		ru.sibint.olymp.compiler.Compiler.executeCommand(extractCommand);
 		return "{\"Status\":\"success\"}";
 	}
 	
