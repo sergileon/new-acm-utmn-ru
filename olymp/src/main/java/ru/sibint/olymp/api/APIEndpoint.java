@@ -17,7 +17,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -235,6 +234,7 @@ public class APIEndpoint {
 			while(S.hasNextLine()) {
 				testContents += S.nextLine() + "<br>";
 			}
+			S.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -255,6 +255,7 @@ public class APIEndpoint {
 			while(S.hasNextLine()) {
 				testContents += S.nextLine() + "<br>";
 			}
+			S.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -272,6 +273,7 @@ public class APIEndpoint {
 			while(S.hasNextLine()) {
 				result = result + S.nextLine() + "\n";
 			}
+			S.close();
 			return result;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -284,6 +286,27 @@ public class APIEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getSubmissions() {
 		return DBProxy.getSubmissions(10);
+	}
+	
+	@Path("/gettasks/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTasks() {
+		return DBProxy.getTasks();
+	}
+	
+	@Path("/getstats/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getStats() {
+		return DBProxy.getStats();
+	}
+	
+	@Path("/getdescription/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getDescription(@QueryParam("id") Integer id) {
+		return DBProxy.getDescription(id);
 	}
 	
 }

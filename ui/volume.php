@@ -44,29 +44,22 @@
 						</thead>
 						<tbody>
 							<?php
-							$servername = "localhost";
-							$username = "root";
-							$password = "";
-							$dbname = "olymp";
-
-							$conn = new mysqli($servername, $username, $password, $dbname);
-							if ($conn->connect_error) {
-								die("Connection failed: " . $conn->connect_error);
-							} 
-
-							$sql = "SELECT Id, Name FROM Task";
-							$result = $conn->query($sql);
-
-							if ($result->num_rows > 0) {
-								while($row = $result->fetch_assoc()) {
+								$ch = curl_init();
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+								curl_setopt($ch, CURLOPT_URL, "http://localhost/olymp/api/rest/gettasks");
+								$tasks = curl_exec($ch);
+								curl_close($ch);
+								
+								$obj = json_decode($tasks);
+								$rowNum = 0;
+								foreach($obj as $task) {
+									$rowNum++;
 									echo "<tr>";
-									echo "<td><font color=\"white\">" . $row["Id"] . "</font></td>" . "<td><a href=\"task.php?id=" . $row["Id"] . "\"><font color=\"white\">" . $row["Name"] . "</font></a></td>";
+									echo "<td><font color=\"white\">" . $rowNum . "</font></td>" . "<td><a href=\"task.php?id=" . $task->Id . "\"><font color=\"white\">" . $task->Name . "</font></a></td>";
 									echo "<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>";
 									echo "</tr>\n";
 								}
-							}
 
-							$conn->close();
 							?>			  						  
 						</tbody>
 					  </table>

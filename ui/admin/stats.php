@@ -38,29 +38,19 @@
 			</thead>
 			<tbody>
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "olymp";
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_URL, "http://localhost/olymp/api/rest/getstats");
+$stats = curl_exec($ch);
+curl_close($ch);
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} 
+$obj = json_decode($stats);
 
-$sql = "SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId GROUP BY UserApp.Name ORDER BY Rating DESC;";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    // output data of each row
-    while($row = $result->fetch_assoc()) {
-		echo "<tr>";
-        echo "<td><center><font color=\"white\">" . $row["UserName"] . "</font></center></td>" . "<td><center><font color=\"white\">" . $row["Rating"] . "</font></center></td>";
-		echo "</tr>\n";
-    }
+foreach($obj as $stat) {
+	echo "<tr>";
+	echo "<td><center><font color=\"white\">" . $stat->Name . "</font></center></td>" . "<td><center><font color=\"white\">" . $stat->Count . "</font></center></td>";
+	echo "</tr>\n";
 }
-
-$conn->close();
 ?>			  
 			  
 			</tbody>
