@@ -5,18 +5,37 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Properties;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class Compiler {
 
 	static Logger logger = Logger.getGlobal();
-	//TODO Change hardcoded constants
-	//static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
-	//static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
-	static String VCPPPath = "\"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\";
-	static String VCSPath = "\"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\";
-	
+
+	private static String cpPath = "";
+	private static String csPath = "";
+	static Properties properties = null; 
+	final static String propertiesFile = "config.properties";
+
+	static {
+		properties = new Properties();
+		InputStream configStream = Compiler.class.getClassLoader().getResourceAsStream(propertiesFile);
+		if(configStream != null) {
+			try {
+				properties.load(configStream);
+				cpPath = properties.getProperty("vcppath");
+				csPath = properties.getProperty("vcspath");
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Can not load properties file");
+				logger.log(Level.SEVERE, e.getMessage());
+			}
+		}
+	}
+
 	public static void executeCommand(String command) {
 		try {
+			System.out.println(command);
 			Process p = Runtime.getRuntime().exec(command);
 			p.waitFor();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -26,10 +45,15 @@ public class Compiler {
 			    sb.append(line + "\n");
 			}
 			logger.log(Level.INFO, sb.toString());
+			System.out.println(sb.toString());
 		} catch (IOException e) {
+			System.out.println("Can not execute command " + command);
+			System.out.println(e.getMessage());
 			logger.log(Level.SEVERE, "Can not execute command " + command);
 			logger.log(Level.SEVERE, e.getMessage());
 		} catch (InterruptedException e) {
+			System.out.println("Can not execute command " + command);
+			System.out.println(e.getMessage());
 			logger.log(Level.SEVERE, "Can not execute command " + command);
 			logger.log(Level.SEVERE, e.getMessage());
 		}
@@ -40,12 +64,15 @@ public class Compiler {
 	}
 	
 	public static void compileCPlusPlus(String path, String fileName) {
-		//executeCommand(VCPPPath + "vcvarsall.bat\" & " + VCPPPath + "bin\\cl\" " + "/Fe" + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		executeCommand("\"" + cpPath + "gcc\" " + " -o " + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+	}
+	
+	public static void compileGCC(String path, String fileName) {
 		executeCommand("gcc " + path + fileName + " -o " + path + fileName + "exec");
 	}
 	
 	public static void compileCSharp(String path, String fileName) {
-		//executeCommand(VCSPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+		executeCommand("\"" + csPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 }

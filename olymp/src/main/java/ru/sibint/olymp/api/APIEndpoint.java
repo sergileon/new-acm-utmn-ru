@@ -39,7 +39,7 @@ import ru.sibint.olymp.dbsync.DBProxy;
 public class APIEndpoint {
 
 	final static String propertiesFile = "config.properties";
-	static String tempDir = "C:\\temp\\";
+	static String tempDir = "";
 	static String archivePath = "";
 	static String unzip = "";
 	Properties properties = null; 
@@ -91,6 +91,7 @@ public class APIEndpoint {
 		}
 		String fileName = String.valueOf(id) + "." + ext;
 		File F = new File(tempDir + fileName);
+		System.out.println(tempDir + fileName);
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(F);
