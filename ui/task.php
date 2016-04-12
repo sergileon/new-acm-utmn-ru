@@ -51,11 +51,16 @@ $desc = curl_exec($ch);
 curl_close($ch);
 
 $obj = json_decode($desc);
-
+$tmp = $obj->Desc;
+$tmp = iconv('UTF-8', 'CP1251', $tmp);
+$tmp1 = $obj->Name;
+$tmp1 = iconv('UTF-8', 'CP1251', $tmp1);
 $taskid = $_GET["id"];
-echo "<tr><td colspan=\"3\"><center><h2><font color=\"white\">" . $_GET["id"] . ". " . $obj->Name . "</font></h2><br><br></center></td></tr>";
-echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\">" . $obj->Desc . "</font></p><br><br></td><td></td></tr>";
+echo "<tr><td colspan=\"3\"><center><h2><font color=\"white\">" . $_GET["id"] . ". " . $tmp1 . "</font></h2><br><br></center></td></tr>";
+echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\">" . $tmp . "</font></p><br><br></td><td></td></tr>";
 
+//$inTest = iconv('UTF-8', 'CP1251', $inTest);
+//$outTest = iconv('UTF-8', 'CP1251', $outTest);
 echo "<tr><td></td><td><h3><font color=\"white\">Sample input: </font></h3><br></td><td></td></tr>"; 
 echo "<tr><td></td><td><font color=\"white\">" . $inTest . "</font></td><td></td></tr>"; 
 echo "<tr><td></td><td><h3><font color=\"white\">Sample output: </font></h3><br></td><td></td></tr>"; 
