@@ -1,6 +1,10 @@
 package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
+import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.*;
+import javax.activation.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,6 +77,7 @@ public class APIEndpoint {
 			@QueryParam("ext") String ext, 
 			@QueryParam("taskId") Integer taskId, 
 			@QueryParam("userId") String userId, 
+			@QueryParam("token") String contestToken, 
 			InputStream data) {
 		StringBuilder stringData = new StringBuilder();
 		try {
@@ -85,9 +91,12 @@ public class APIEndpoint {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
 
-		int id = DBProxy.addSubmission(userId, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0");
+		int id = DBProxy.addSubmission(userId, contestToken, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0");
 		if(id == -1) {
-			return "FAILED";
+			return "{\"status\":\"FAILED\",\"message\":\"System ERROR\"}";
+		}
+		if(id == -2) {
+			return "{\"status\":\"FAILED\",\"message\":\"User with such pair email-token is not founded\"}";
 		}
 		String fileName = String.valueOf(id) + "." + ext;
 		File F = new File(tempDir + fileName);
@@ -121,6 +130,51 @@ public class APIEndpoint {
 		return "SUCCESS: " + result.toString();
 	}
 	
+	private String genToken() {
+		String ret = "";
+		Random r = new Random(System.currentTimeMillis());
+		for(int i = 0; i < 8; i++) {
+			int x = r.nextInt(); if(x < 0) x = -x; x = x % 26;
+			char c = (char)(x + 65);
+			ret += c;
+		}
+		return ret;
+	}
+	
+	private void SendEmail(String email, String contestToken) {
+		String to = email;
+		String from = "i107th@gmail.com";
+        String host = "smtp.gmail.com";
+        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+		Properties props = System.getProperties();
+		props.setProperty("mail.smtp.host", host);
+		props.put("mail.stmp.user" , "i107th@gmail.com");
+		props.put("mail.smtp.password", "107475508th");
+		props.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
+	    props.setProperty("mail.smtp.socketFactory.fallback", "false");
+	    props.setProperty("mail.smtp.port", "465");
+	    props.setProperty("mail.smtp.socketFactory.port", "465");
+	    props.put("mail.smtp.auth", "true");
+	    props.put("mail.debug", "true");
+	    props.put("mail.store.protocol", "pop3");
+	    props.put("mail.transport.protocol", "smtp");
+
+	    Session session = Session.getDefaultInstance(props, new SmtpAuthenticator());
+	
+		try {
+			MimeMessage message = new MimeMessage(session);
+	        message.setFrom(new InternetAddress(from));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			message.setSubject("Registration on acm.utmn.ru");
+			message.setText("Hello! Thank you for registration on acm.utmn.ru! Use next token to submit tasks: " + contestToken);
+			Transport t = session.getTransport("smtp");
+			t.send(message);
+			System.out.println("Message was successfully sent.");
+		} catch (MessagingException mex) {
+			mex.printStackTrace();
+		}		
+	}
+	
 	@Path("/adduser/")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -135,12 +189,20 @@ public class APIEndpoint {
 			System.out.println(stringData.toString());
 			
 			JSONObject obj = new JSONObject(stringData.toString());
-			DBProxy.addUser(obj.getString("username"), obj.getString("email"));
-			
+			String contestToken = genToken();
+			int code = DBProxy.addUser(obj.getString("username"), obj.getString("email"), contestToken);
+			System.out.println(code);
+			if(code == -1) {
+				return "{\"status\":\"FAILED\",\"message\":\"System ERROR\"}";
+			}
+			if(code == -2) {
+				return "{\"status\":\"FAILED\",\"message\":\"User already exists.\"}";
+			}
+			SendEmail(obj.getString("email"), contestToken);
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
-		return "{\"Status\":\"SUCCESS\"}";
+		return "{\"Status\":\"SUCCESS\",\"message\":\"Check your email and find token to proceed with online contester.\"}";
 	}
 	
 	@Path("/addtask/")
@@ -182,9 +244,9 @@ public class APIEndpoint {
 		String extractCommand = "";
 		try {
 
-			String uploadedFileLocation = archivePath + "/" + taskId.toString() + "/tests/";
+			String uploadedFileLocation = archivePath + "\\" + taskId.toString() + "\\tests\\";
 
-			if(!Files.exists(Paths.get(archivePath + "/" + taskId.toString()), LinkOption.NOFOLLOW_LINKS)) {
+			if(!Files.exists(Paths.get(archivePath + "\\" + taskId.toString()), LinkOption.NOFOLLOW_LINKS)) {
 				System.out.println("Dir doesn't exists.");
 				(new File(uploadedFileLocation)).mkdirs();
 			}
@@ -229,7 +291,7 @@ public class APIEndpoint {
 			@QueryParam("testId") Integer testId) {
 		
 		String testContents = "";
-		File F = new File(archivePath + "/" + taskId + "/tests/" + testId + ".in");
+		File F = new File(archivePath + "\\" + taskId + "\\tests\\" + testId + ".in");
 		try {
 			Scanner S = new Scanner(F);
 			while(S.hasNextLine()) {
@@ -250,7 +312,7 @@ public class APIEndpoint {
 			@QueryParam("testId") Integer testId) {
 		
 		String testContents = "";
-		File F = new File(archivePath + "/" + taskId + "/tests/" + testId + ".out");
+		File F = new File(archivePath + "\\" + taskId + "\\tests\\" + testId + ".out");
 		try {
 			Scanner S = new Scanner(F);
 			while(S.hasNextLine()) {
@@ -310,4 +372,24 @@ public class APIEndpoint {
 		return DBProxy.getDescription(id);
 	}
 	
+	public static void main(String args[]) {
+		APIEndpoint ae = new APIEndpoint();
+		System.out.println(ae.genToken());
+		ae.SendEmail("107thmail.ru", ae.genToken());
+	}
+	
+}
+
+class SmtpAuthenticator extends Authenticator {
+	public SmtpAuthenticator() {
+
+	    super();
+	}
+
+	@Override
+	public PasswordAuthentication getPasswordAuthentication() {
+		String username = "i107th";
+		String password = "107475508th";
+        return new PasswordAuthentication(username, password);
+	}
 }

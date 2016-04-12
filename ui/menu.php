@@ -66,6 +66,9 @@
 			<label for="comment">User Email:</label>
 			<input type="text" class="form-control" id="usermail"/>
 			<br>
+			<label for="comment">User Token:</label>
+			<input type="text" class="form-control" id="token"/>
+			<br>
 			<label for="comment">Task Id:</label>
 			<input type="text" class="form-control" id="taskid"/>
 			<br>
@@ -100,12 +103,13 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<label for="comment">Your Name:</label>
+			<label for="comment"><font color="black">Your Name:</font></label>
 			<input type="text" class="form-control" id="username"/>
 			<br>
-			<label for="comment">Your Email:</label>
+			<label for="comment"><font color="black">Your Email:</font></label>
 			<input type="text" class="form-control" id="useremail"/>
 		</div>
+		<div class="g-recaptcha" data-sitekey="6LdPIh0TAAAAAKsPG3hTx7VHWoqTqApR4OF-yrDv"></div>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-default" id="register">Register</button>
@@ -167,6 +171,7 @@
 	</nav>
 
 
+	<script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
 	<script>
@@ -213,7 +218,8 @@
 			var lng = $("#language").val();
 			var tid = $("#taskid").val();
 			var usm = $("#usermail").val();
-			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=" + usm;
+			var tok = $("#token").val();
+			var url = "/olymp/api/rest/submit?" + "taskId=" + tid + "&ext=" + lng + "&userId=" + usm + "&token=" + tok;
 			$.ajax({
 				type: "POST",
 				url: url,
@@ -256,8 +262,8 @@
 				url: url,
 				data: json,
 				contentType: "application/json",
-				success: function(jqXHR, data, textStatus) {
-
+				success: function(data) {
+					alert(data.message);
 				},
 				error: function (jqXHR, exception) {
 					var msg = '';
@@ -280,7 +286,6 @@
 				}
 			});
 			$("#registerWindow").modal('hide');
-			alert("Submit your tasks using your email as login name.");
 			return true;
 		});
 	</script>

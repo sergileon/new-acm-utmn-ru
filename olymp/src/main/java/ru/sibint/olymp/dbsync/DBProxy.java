@@ -204,14 +204,14 @@ public class DBProxy {
 	}
 	
 	@SuppressWarnings("finally")
-	public static void addUser(String userName, String userMail) {
+	public static int addUser(String userName, String userMail, String contestToken) {
 		Connection connectionMysql = null;
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}		
 		
 		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
@@ -220,24 +220,34 @@ public class DBProxy {
 			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}
 
+		int code = -1;
 		try {
+			Statement stmSel = connectionMysql.createStatement();
+			String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userMail + "'";
+			System.out.println(selectIdQuery);
+			if(stmSel.executeQuery(selectIdQuery).next()) {
+				System.out.println("User already exists");
+				code = -2;
+			}
+
+			System.out.println("Insert new user");
 			Statement stm = connectionMysql.createStatement();
 			stm.setFetchSize(1000);
-			String qury = "INSERT INTO UserApp (Name, Email) VALUES ('" + userName + "', '" + userMail + "')";
+			String qury = "INSERT INTO UserApp (Name, Email, Token) VALUES ('" + userName + "', '" + userMail + "', '" + contestToken + "')";
 			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
 		    stm.execute(qury);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return;
+			code = -1;
 		} finally {
 			try {
 				connectionMysql.close();
 			} catch (SQLException e) {
 			}
-			return;
+			return code;
 		}
 	}
 	
@@ -286,7 +296,7 @@ public class DBProxy {
 	}
 	
 	@SuppressWarnings("finally")
-	public static int addSubmission(String userEmail, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
+	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
 		Connection connectionMysql = null;
 		
 		try {
@@ -307,13 +317,16 @@ public class DBProxy {
 
 		int id = -1;
 		String userId = "1";
-		String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userEmail + "'";
+		String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userEmail + "' AND token = '" + contestToken + "'";
 		System.out.println(selectIdQuery);
 		try {
 			Statement stm = connectionMysql.createStatement();
 			stm.setFetchSize(1000);
 		    
 			ResultSet rs1 = stm.executeQuery(selectIdQuery);
+			if(!rs1.next()) {
+				return -2;
+			}
 			while(rs1.next()) {
 				userId = rs1.getString(1);
 				System.out.println(rs1.getString(1));
