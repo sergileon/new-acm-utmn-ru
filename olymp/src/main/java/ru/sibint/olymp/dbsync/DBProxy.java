@@ -223,7 +223,7 @@ public class DBProxy {
 			return -1;
 		}
 
-		int code = -1;
+		int code = 0;
 		try {
 			Statement stmSel = connectionMysql.createStatement();
 			String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userMail + "'";
@@ -231,6 +231,7 @@ public class DBProxy {
 			if(stmSel.executeQuery(selectIdQuery).next()) {
 				System.out.println("User already exists");
 				code = -2;
+				return -2;
 			}
 
 			System.out.println("Insert new user");
@@ -242,6 +243,7 @@ public class DBProxy {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			code = -1;
+			return -1;
 		} finally {
 			try {
 				connectionMysql.close();
