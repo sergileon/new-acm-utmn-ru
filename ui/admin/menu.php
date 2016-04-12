@@ -126,7 +126,19 @@
     <script src="../js/jquery.js"></script>
     <script src="../js/bootstrap.min.js"></script>
 	<script>
-	
+
+		function getCookie(name) {
+			var value = "; " + document.cookie;
+			var parts = value.split("; " + name + "=");
+			if (parts.length == 2) return parts.pop().split(";").shift();
+		}	
+		
+		$( document ).ready(function () {
+			s = prompt('Enter admin password', '');
+			if(s !== "adminpassword")
+				window.location.replace("http://acm.utmn.ru");
+		});
+		
 		$("#updatestatus").click(function () {
 			$.ajax({
 				type: "GET",
@@ -138,7 +150,12 @@
 					}
 					for(i = 0; i < data.length; i++) {
 						//$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
-						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td></tr>");
+						var verdict = data[i].verd;
+						if(verdict == 'WA') verdict = 'Wrong Answer';
+						if(verdict == 'TLE') verdict = 'Time Limit Exceeded';
+						if(verdict == 'MLE') verdict = 'Memory Limit Exceeded';
+						if(verdict == 'AC') verdict = 'Accepted';
+						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {
