@@ -5,399 +5,184 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.ResultSetMetaData;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+enum QueryType {
+	SELECT, INSERT, UPDATE
+}
+
 public class DBProxy {
+	
+	public static List<Object> evaluateQuery(String query, QueryType qt) {
+		ArrayList<Object> ans = new ArrayList<Object>();
+		Connection connectionMysql = null;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}		
+		
+		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
+		
+		try {
+			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		try {
+			if(qt == QueryType.SELECT) {
+				Statement stm = connectionMysql.createStatement();
+				ResultSet rs = stm.executeQuery(query);
+				ResultSetMetaData rsmd = rs.getMetaData();
+				while(rs.next()) {
+					HashMap<String, String> element = new HashMap<String, String>();
+					for(int i = 1; i <= rsmd.getColumnCount(); i++) {
+						element.put(rsmd.getColumnName(i), rs.getString(i));
+					}
+					ans.add(element);
+				}
+			}
+			if(qt == QueryType.INSERT) {
+				Statement stm = connectionMysql.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+				stm.executeUpdate(query);
+				ResultSet rs = stm.getGeneratedKeys();
+			    if(rs.next()) {
+			    	ans.add(rs.getInt(1));
+			    }
+			}
+			if(qt == QueryType.UPDATE) {
+				Statement stm = connectionMysql.createStatement();
+				stm.execute(query);
+			}			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			try {
+				connectionMysql.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		return ans;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static String getSubmissions(int count) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}
-
+		List<Object> list = evaluateQuery(
+				"SELECT Submission.Id as Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent "
+				+ "FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count)
+				, QueryType.SELECT);
+		if(list == null) return "[{\"status\":\"error\"}]";
 		String result = "[";
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "SELECT Submission.Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count);
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
-			ResultSet rs = stm.getResultSet();
-			boolean bl = false;
-			while(rs.next()) {
-				if(bl) result += ",";
-				result += 
-						"{\"id\":\"" + rs.getString(1) + "\"," +  
-						"\"auth\":\"" + rs.getString(2) + "\"," +
-						"\"task\":\"" + rs.getString(3) + "\"," +
-						"\"verd\":\"" + rs.getString(4) + "\"," +
-						"\"testid\":\"" + rs.getString(5) + "\"," +
-						"\"time\":\"" + rs.getString(6) + "\"," +
-						"\"mem\":\"" + rs.getString(7) + "\"}";
-				bl = true;
-			}
-			result += "]";
-			System.out.println(result);
-			return result;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
+		boolean bl = false;
+		for(Object element : list) {
+			HashMap<String, String> hm = (HashMap<String, String>)element;
+			if(bl) result += ",";
+			result += 
+					"{\"id\":\"" + hm.get("Id") + "\"," +  
+					"\"auth\":\"" + hm.get("Name") + "\"," +
+					"\"task\":\"" + hm.get("TaskId") + "\"," +
+					"\"verd\":\"" + hm.get("Verdict") + "\"," +
+					"\"testid\":\"" + hm.get("TestId") + "\"," +
+					"\"time\":\"" + hm.get("TimeSpent") + "\"," +
+					"\"mem\":\"" + hm.get("MemorySpent") + "\"}";
+			bl = true;
 		}
+		result += "]";
+		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static String getTasks() {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}
-
+		List<Object> list = evaluateQuery("SELECT Id, Name, Description as Desc FROM Task", QueryType.SELECT);
+		if(list == null) return "[{\"status\":\"error\"}]";
 		JSONArray jsonArray = new JSONArray();
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "SELECT Id, Name, Description FROM Task";
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
-			ResultSet rs = stm.getResultSet();
-			while(rs.next()) {
-				HashMap<String, String> hm = new HashMap<String, String>();
-				hm.put("Id", rs.getString(1));
-				hm.put("Name", rs.getString(2));
-				hm.put("Desc", rs.getString(3));
-				jsonArray.put(hm);
-			}
-			return jsonArray.toString();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
+		for(Object element : list) {
+			HashMap<String, String> hm = (HashMap<String, String>)element;
+			jsonArray.put(hm);
 		}
+		return jsonArray.toString();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static String getDescription(Integer id) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
+		List<Object> list = evaluateQuery("SELECT Id, Name, Description FROM Task WHERE Id = " + id.toString(), QueryType.SELECT);
+		if(list == null) return "[{\"status\":\"error\"}]";
+		for(Object element : list) {
+			HashMap<String, String> hm = (HashMap<String, String>)element;
+			return (new JSONObject(hm)).toString();
 		}
-
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "SELECT Id, Name, Description FROM Task WHERE Id = " + id.toString();
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
-			ResultSet rs = stm.getResultSet();
-			while(rs.next()) {
-				HashMap<String, String> hm = new HashMap<String, String>();
-				hm.put("Id", rs.getString(1));
-				hm.put("Name", rs.getString(2));
-				hm.put("Desc", rs.getString(3));
-				return (new JSONObject(hm)).toString();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
-		}
-		return "[{\"status\":\"error\"}]";
+		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static String getStats() {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		}
-
+		List<Object> list = evaluateQuery("SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId GROUP BY UserApp.Name ORDER BY Rating DESC", QueryType.SELECT);
+		if(list == null) return "[{\"status\":\"error\"}]";
 		JSONArray jsonArray = new JSONArray();
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId GROUP BY UserApp.Name ORDER BY Rating DESC";
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
-			ResultSet rs = stm.getResultSet();
-			while(rs.next()) {
-				HashMap<String, String> hm = new HashMap<String, String>();
-				hm.put("Name", rs.getString(1));
-				hm.put("Count", rs.getString(2));
-				jsonArray.put(hm);
-			}
-			return jsonArray.toString();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return "[{\"status\":\"error\"}]";
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
+		for(Object element : list) {
+			HashMap<String, String> hm = (HashMap<String, String>)element;
+			jsonArray.put(hm);
 		}
+		return jsonArray.toString();
 	}
 	
-	@SuppressWarnings("finally")
 	public static int addUser(String userName, String userMail, String contestToken) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return -1;
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return -1;
-		}
-
-		int code = 0;
-		try {
-			Statement stmSel = connectionMysql.createStatement();
-			String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userMail + "'";
-			System.out.println(selectIdQuery);
-			if(stmSel.executeQuery(selectIdQuery).next()) {
-				System.out.println("User already exists");
-				code = -2;
-				return -2;
-			}
-
-			System.out.println("Insert new user");
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "INSERT INTO UserApp (Name, Email, Token) VALUES ('" + userName + "', '" + userMail + "', '" + contestToken + "')";
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-		    stm.execute(qury);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			code = -1;
-			return -1;
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
-			return code;
-		}
+		List<Object> list = evaluateQuery("SELECT Id FROM UserApp WHERE email = '" + userMail + "'", QueryType.SELECT);
+		if(list == null) return -1;
+		if(list.size() > 0) return -2;
+		evaluateQuery("INSERT INTO UserApp (Name, Email, Token) VALUES ('" + userName + "', '" + userMail + "', '" + contestToken + "')", QueryType.INSERT);
+		return 1;
 	}
 	
-	@SuppressWarnings("finally")
 	public static Integer addTask(String title, String description) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return -1;
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return -1;
-		}
-
-		Integer id = -1;
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-			String qury = "INSERT INTO Task (Name, Description) VALUES ('" + title + "', '" + description + "')";
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-			stm = connectionMysql.prepareStatement(qury, Statement.RETURN_GENERATED_KEYS);
-			stm.executeUpdate(qury);
-			ResultSet rs1 = stm.getGeneratedKeys();
-		    if(rs1.next()) {
-		    	id = rs1.getInt(1);
-		    }
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return -1;
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
-			return id;
-		}
+		description = description.replace('\'', ' ').replace('\"', ' ').replace('\\', ' ');
+		title = title.replace('\'', ' ').replace('\"', ' ').replace('\\', ' ');
+		List<Object> list = evaluateQuery("INSERT INTO Task (Name, Description) VALUES ('" + title + "', '" + description + "')", QueryType.INSERT);
+		if(list == null) return -1;
+		return ((Integer)list.get(0));
 	}
 	
-	@SuppressWarnings("finally")
+	@SuppressWarnings("unchecked")
 	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return -1;
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return -1;
-		}
-
-		int id = -1;
-		String userId = "1";
-		String selectIdQuery = "SELECT Id FROM UserApp WHERE email = '" + userEmail + "' AND token = '" + contestToken + "'";
-		System.out.println(selectIdQuery);
-		try {
-			Statement stm = connectionMysql.createStatement();
-			stm.setFetchSize(1000);
-		    
-			ResultSet rs1 = stm.executeQuery(selectIdQuery);
-			if(!rs1.next()) {
-				return -2;
-			}
-			while(rs1.next()) {
-				userId = rs1.getString(1);
-				System.out.println(rs1.getString(1));
-			}
-			String qury = "INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')";
-
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-			stm = connectionMysql.prepareStatement(qury, Statement.RETURN_GENERATED_KEYS);
-			stm.executeUpdate(qury);
-			rs1 = stm.getGeneratedKeys();
-		    if(rs1.next()) {
-		    	id = rs1.getInt(1);
-		    }
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return -1;
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
-			return id;
-		}
+		List<Object> list = evaluateQuery("SELECT Id FROM UserApp WHERE email = '" + userEmail + "' AND token = '" + contestToken + "'", QueryType.SELECT);
+		if(list == null) return -2;
+		String userId = ((HashMap<String, String>)list.get(0)).get("Id");
+		list = evaluateQuery("INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')", QueryType.INSERT);
+		if(list == null) return -1;
+		return ((Integer)list.get(0));
 	}
 
-	@SuppressWarnings("finally")
 	public static void updateSubmission(String id, String verdict, String testId, String timeForTask, String memoryForTask) {
-		Connection connectionMysql = null;
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}		
-		
-		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
-		
-		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
-		}
-
-		try {
-			Statement stm = connectionMysql.createStatement();
-			String qury = "UPDATE Submission SET "
-					+ "Verdict = '" + verdict + "', "
-					+ "TimeSpent = " + timeForTask + ", "
-					+ "MemorySpent = " + memoryForTask + ", "
-					+ "TestId = " + testId + " WHERE Id = " + id;
-
-			Logger.getGlobal().log(Level.INFO, "Try to execute\n" + qury);
-			stm.execute(qury);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
-		} finally {
-			try {
-				connectionMysql.close();
-			} catch (SQLException e) {
-			}
-			return;
-		}
+		String qury = "UPDATE Submission SET "
+				+ "Verdict = '" + verdict + "', "
+				+ "TimeSpent = " + timeForTask + ", "
+				+ "MemorySpent = " + memoryForTask + ", "
+				+ "TestId = " + testId + " WHERE Id = " + id;
+		evaluateQuery(qury, QueryType.UPDATE);
 	}
 
-	public static void main(String args[]) {
-		System.out.println(getSubmissions(2));
+	public static Integer updateTask(Integer Id, String title, String description) {
+		description = description.replace('\'', ' ').replace('\"', ' ').replace('\\', ' ');
+		title = title.replace('\'', ' ').replace('\"', ' ').replace('\\', ' ');
+		List<Object> list = evaluateQuery("UPDATE Task SET Name = '" + title + "', Description = '" + description + "' WHERE Id = " + Id.toString(), QueryType.UPDATE);
+		if(list == null) return -1;
+		return 1;
 	}
 	
 }

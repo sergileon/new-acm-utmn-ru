@@ -172,7 +172,7 @@ public class APIEndpoint {
 			System.out.println("Message was successfully sent.");
 		} catch (MessagingException mex) {
 			mex.printStackTrace();
-		}		
+		}
 	}
 	
 	@Path("/adduser/")
@@ -371,13 +371,30 @@ public class APIEndpoint {
 	public String getDescription(@QueryParam("id") Integer id) {
 		return DBProxy.getDescription(id);
 	}
-	
-	public static void main(String args[]) {
-		APIEndpoint ae = new APIEndpoint();
-		System.out.println(ae.genToken());
-		ae.SendEmail("107thmail.ru", ae.genToken());
+		
+	@Path("/updatetask/")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateTask(@QueryParam("id") Integer id, InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(data));
+			String line = "";
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+
+			System.out.println(stringData.toString());
+			JSONObject obj = new JSONObject(stringData.toString());
+			DBProxy.updateTask(id, obj.getString("title"), obj.getString("description"));
+			if(id == -1) {
+				return "{\"Status\":\"FAIL\",\"id\":\"" + id.toString() + "\"}";
+			}
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		}
+		return "{\"Status\":\"SUCCESS\",\"id\":\"" + id.toString() + "\"}";
 	}
-	
 }
 
 class SmtpAuthenticator extends Authenticator {
