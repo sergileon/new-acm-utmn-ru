@@ -109,7 +109,7 @@ public class DBProxy {
 	
 	@SuppressWarnings("unchecked")
 	public static String getTasks() {
-		List<Object> list = evaluateQuery("SELECT Id, Name, Description as Desc FROM Task", QueryType.SELECT);
+		List<Object> list = evaluateQuery("SELECT Id, Name, Description as 'Desc' FROM Task", QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
 		JSONArray jsonArray = new JSONArray();
 		for(Object element : list) {

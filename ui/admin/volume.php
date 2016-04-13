@@ -55,7 +55,7 @@
 								foreach($obj as $task) {
 									$rowNum++;
 									echo "<tr>";
-									echo "<td><font color=\"white\">" . $rowNum . "</font></td>" . "<td><a href=\"task.php?id=" . $task->Id . "\"><font color=\"white\">" . $task->Name . "</font></a></td>";
+									echo "<td><font color=\"white\">" . $rowNum . "</font></td>" . "<td><a href=\"edittask.php?id=" . $task->Id . "\"><font color=\"white\">" . $task->Name . "</font></a></td>";
 									echo "<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>";
 									echo "</tr>\n";
 								}

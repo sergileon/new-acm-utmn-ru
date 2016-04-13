@@ -51,7 +51,7 @@ $desc = curl_exec($ch);
 curl_close($ch);
 
 $obj = json_decode($desc);
-$tmp = $obj->Desc;
+$tmp = $obj->Description;
 $tmp = iconv('UTF-8', 'CP1251', $tmp);
 $tmp1 = $obj->Name;
 $tmp1 = iconv('UTF-8', 'CP1251', $tmp1);
