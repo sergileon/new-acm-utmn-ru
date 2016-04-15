@@ -52,9 +52,14 @@ curl_close($ch);
 
 $obj = json_decode($desc);
 
+$tmp = $obj->Description;
+$tmp = iconv('UTF-8', 'CP1251', $tmp);
+$tmp1 = $obj->Name;
+$tmp1 = iconv('UTF-8', 'CP1251', $tmp1);
+
 $taskid = $_GET["id"];
-echo "<tr><td colspan=\"3\"><center><h2>" . $_GET["id"] . ". </h2><input type=\"text\" id=\"title\" value=\"" . $obj->Name . "\"><h2><font color=\"white\"></font></h2><br><br></center></td></tr>";
-echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\"><textarea id=\"descript\" rows=\"4\" style=\"overflow:auto;resize:none;width:100%\" cols=\"50\">" . $obj->Description . "</textarea></font></p><br><br></td><td></td></tr>";
+echo "<tr><td colspan=\"3\"><center><h2>" . $_GET["id"] . ". </h2><input type=\"text\" id=\"title\" value=\"" . $tmp1 . "\"><h2><font color=\"white\"></font></h2><br><br></center></td></tr>";
+echo "<tr><td></td><td><h3><font color=\"white\">Description:</font></h3><br><p class=\"text-info\" align=\"justify\"><font color=\"white\"><textarea id=\"descript\" rows=\"4\" style=\"overflow:auto;resize:none;width:100%\" cols=\"50\">" . $tmp . "</textarea></font></p><br><br></td><td></td></tr>";
 ?>			  
 	
 			</tr>
