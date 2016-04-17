@@ -47,13 +47,39 @@ CREATE TABLE Contest
 	IsVirtual TINYINT,
 	StartDateTime DATETIME NOT NULL,
 	EndDateTime DATETIME NOT NULL,
+	Length INT,
     Description TEXT NOT NULL
 );
 CREATE TABLE ContestTasks
 (
-    IdContest INT,
-    IdTask INT	
+    IdContest INT NOT NULL,
+    IdTask INT NOT NULL	
 );
+CREATE TABLE ContestInstance
+(
+	Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    IdContest INT NOT NULL,
+    StartTime DATETIME NOT NULL
+);
+CREATE TABLE ContestUser
+(
+	Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    IdContestInstance INT NOT NULL,
+    IdUser INT NOT NULL
+);
+CREATE TABLE ContestStatus
+(
+    Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    TaskId INT NOT NULL,
+    TestId INT,
+    Verdict TEXT,
+    TimeSpent INT,
+    MemorySpent INT,
+    UserId INT NOT NULL,
+    ContestInstanceId INT NOT NULL
+);
+
+
 ALTER TABLE Test ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
 ALTER TABLE Submission ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
 ALTER TABLE TasksForUser ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
