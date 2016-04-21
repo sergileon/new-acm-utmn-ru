@@ -134,9 +134,9 @@
 		}	
 		
 		$( document ).ready(function () {
-			s = prompt('Enter admin password', '');
-			if(s !== "adminpassword")
-				window.location.replace("http://acm.utmn.ru");
+			//s = prompt('Enter admin password', '');
+			//if(s !== "adminpassword")
+			//	window.location.replace("http://acm.utmn.ru");
 		});
 		
 		$("#updatestatus").click(function () {

@@ -63,16 +63,16 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<label for="comment">User Email:</label>
+			<label for="comment"><font color="black">User Email:</font></label>
 			<input type="text" class="form-control" id="usermail"/>
 			<br>
-			<label for="comment">User Token:</label>
+			<label for="comment"><font color="black">User Token:</font></label>
 			<input type="text" class="form-control" id="token"/>
 			<br>
-			<label for="comment">Task Id:</label>
+			<label for="comment"><font color="black">Task Id:</font></label>
 			<input type="text" class="form-control" id="taskid"/>
 			<br>
-			<label for="sel1">Language:</label>
+			<label for="sel1"><font color="black">Language:</font></label>
 			<select class="form-control" id="language">
 				<option value="cpp">MS Visual C++ 2013</option>
 				<option value="cs">MS Visual C# 2013</option>
@@ -147,6 +147,15 @@
 				<li class="divider"></li>
 				<li><a href="forum.php">Forum</a></li>
 			  </ul>
+			</li>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">First Steps<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href="lab.php?lab=0">Basic Level</a></li>
+					<li><a href="lab.php?lab=1">Conditions and Cycles</a></li>
+					<li><a href="lab.php?lab=2">Arrays and Strings</a></li>
+					<li><a href="lab.php?lab=3">Objects and Classes</a></li>
+				</ul>
 			</li>
 			<li><a href="#" data-toggle="modal" data-target="#statusWindow">Status</a></li>
 			<li><a href="stats.php">Statistics</a></li>

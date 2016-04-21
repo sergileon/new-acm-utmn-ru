@@ -60,8 +60,6 @@ public class APIEndpoint {
 				tempDir = properties.getProperty("tempdir");
 				archivePath = properties.getProperty("archivedir");
 				unzip = properties.getProperty("unzipcommand");
-				System.out.println(tempDir);
-				System.out.println(archivePath);				
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Can not load properties file");
 				logger.log(Level.SEVERE, e.getMessage());
@@ -113,7 +111,14 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
-		CheckingInfo result = Checker.checkProgram(archivePath, tempDir, fileName, taskId);
+		String path = archivePath + taskId.toString() + "\\tests\\";
+		JSONObject jo = new JSONObject(getDescription(taskId));
+		if(jo.getString("Name").startsWith("L")) {
+			String labId = jo.getString("Name").substring(1).split("_")[0];
+			String labTaskId = jo.getString("Name").split("_")[1];
+			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\";
+		}
+		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId);
 		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
 		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
 		
@@ -291,7 +296,15 @@ public class APIEndpoint {
 			@QueryParam("testId") Integer testId) {
 		
 		String testContents = "";
-		File F = new File(archivePath + "\\" + taskId + "\\tests\\" + testId + ".in");
+		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".in";
+		JSONObject jo = new JSONObject(getDescription(taskId));
+		if(jo.getString("Name").startsWith("L")) {
+			String labId = jo.getString("Name").substring(1).split("_")[0];
+			String labTaskId = jo.getString("Name").split("_")[1];
+			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".in";
+		}
+		System.out.println(path);
+		File F = new File(path);
 		try {
 			Scanner S = new Scanner(F);
 			while(S.hasNextLine()) {
@@ -312,7 +325,15 @@ public class APIEndpoint {
 			@QueryParam("testId") Integer testId) {
 		
 		String testContents = "";
-		File F = new File(archivePath + "\\" + taskId + "\\tests\\" + testId + ".out");
+		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".out";
+		JSONObject jo = new JSONObject(getDescription(taskId));
+		if(jo.getString("Name").startsWith("L")) {
+			String labId = jo.getString("Name").substring(1).split("_")[0];
+			String labTaskId = jo.getString("Name").split("_")[1];
+			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".out";
+		}
+		System.out.println(path);
+		File F = new File(path);
 		try {
 			Scanner S = new Scanner(F);
 			while(S.hasNextLine()) {
@@ -356,6 +377,13 @@ public class APIEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getTasks() {
 		return DBProxy.getTasks();
+	}
+	
+	@Path("/getlabtasks/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getLabTasks(@QueryParam("id") Integer id) {
+		return DBProxy.getLabTasks(id);
 	}
 	
 	@Path("/getstats/")
