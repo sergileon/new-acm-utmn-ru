@@ -45,6 +45,8 @@ class TestChecker implements Runnable {
 			String command = "";
 			if(programType.equals("EXE"))
 				command = path + fileName;
+			if(programType.equals("JAVA")) 
+				command = "java -classpath " + path + " " + fileName;
 			System.out.println(command);
 			ProcessBuilder pb = new ProcessBuilder(command);
 			pb.redirectInput(new File(testName));
@@ -137,9 +139,14 @@ public class Checker {
 		return testChecker.getAnswer();
 	}
 
-	private static CheckingInfo check(String taskPath, String path, String fileName, int taskId, String progType) {
-		String newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
-		//String newFileName = fileName + "exec";
+	private static CheckingInfo check(String taskPath, String path, String fileName, int taskId, String progType, String environment) {
+		String newFileName = ""; 
+		if(progType.equals("EXE")) {
+			newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
+			if(environment.equals("linux")) newFileName = fileName + "exec";
+		} else {
+			newFileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		}
 		System.out.println("Checking task on the path " + taskPath);
 		
 		CheckingInfo cInfo = new CheckingInfo();
@@ -174,17 +181,36 @@ public class Checker {
 		return cInfo;
 	}
 	
-	public static CheckingInfo checkProgram(String archivePath, String path, String fileName, int taskId) {
+	public static CheckingInfo checkProgram(String archivePath, String path, String fileName, int taskId, String environment) {
 		if(fileName.endsWith(".cpp")) {
-			Compiler.compileCPlusPlus(path, fileName);
-			return check(archivePath, path, fileName, taskId, "EXE");
+			String result = Compiler.compileCPlusPlus(path, fileName);
+			if(result != null) {
+				CheckingInfo ci = new CheckingInfo();
+				ci.setVerdict(CheckingResult.CE);
+				ci.setMessage(result);
+				return ci;
+			}
+			return check(archivePath, path, fileName, taskId, "EXE", environment);
 		} else
 		if(fileName.endsWith(".cs")) {
-			Compiler.compileCSharp(path, fileName);
-			return check(archivePath, path, fileName, taskId, "EXE");
+			String result = Compiler.compileCSharp(path, fileName);
+			if(result != null) {
+				CheckingInfo ci = new CheckingInfo();
+				ci.setVerdict(CheckingResult.CE);
+				ci.setMessage(result);
+				return ci;
+			}
+			return check(archivePath, path, fileName, taskId, "EXE", environment);
 		} else
 		if(fileName.endsWith(".java")) {
-			return check(archivePath, path, fileName, taskId, "JAVA");
+			String result = Compiler.compileJava(path, fileName);
+			if(result != null) {
+				CheckingInfo ci = new CheckingInfo();
+				ci.setVerdict(CheckingResult.CE);
+				ci.setMessage(result);
+				return ci;
+			}
+			return check(archivePath, path, fileName, taskId, "JAVA", environment);
 		}
 		return null;
 	}

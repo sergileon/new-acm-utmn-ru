@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Properties;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class Compiler {
 
@@ -33,7 +32,7 @@ public class Compiler {
 		}
 	}
 
-	public static void executeCommand(String command) {
+	public static String executeCommand(String command) {
 		try {
 			System.out.println(command);
 			Process p = Runtime.getRuntime().exec(command);
@@ -44,8 +43,17 @@ public class Compiler {
 			while ((line = reader.readLine())!= null) {
 			    sb.append(line + "\n");
 			}
+
+			reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			StringBuilder sbe = new StringBuilder();
+			while ((line = reader.readLine())!= null) {
+			    sbe.append(line + "\n");
+			}
+
 			logger.log(Level.INFO, sb.toString());
 			System.out.println(sb.toString());
+			if(p.exitValue() == 1) 
+				return sbe.toString();
 		} catch (IOException e) {
 			System.out.println("Can not execute command " + command);
 			System.out.println(e.getMessage());
@@ -57,22 +65,23 @@ public class Compiler {
 			logger.log(Level.SEVERE, "Can not execute command " + command);
 			logger.log(Level.SEVERE, e.getMessage());
 		}
+		return null;
 	}
 	
-	public static void compileJava(String path, String fileName) {
-		executeCommand("javac " + path + fileName);
+	public static String compileJava(String path, String fileName) {
+		return executeCommand("javac " + path + "Solution.java");
 	}
 	
-	public static void compileCPlusPlus(String path, String fileName) {
-		executeCommand("\"" + cpPath + "gcc\" " + " -o " + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+	public static String compileCPlusPlus(String path, String fileName) {
+		return executeCommand("\"" + cpPath + "gcc\" " + " -o " + path +  fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
-	public static void compileGCC(String path, String fileName) {
-		executeCommand("gcc " + path + fileName + " -o " + path + fileName + "exec");
+	public static String compileGCC(String path, String fileName) {
+		return executeCommand("gcc " + path + fileName + " -o " + path + fileName + "exec");
 	}
 	
-	public static void compileCSharp(String path, String fileName) {
-		executeCommand("\"" + csPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
+	public static String compileCSharp(String path, String fileName) {
+		return executeCommand("\"" + csPath + "csc.exe\"" + " /out:" + path + fileName.substring(0, fileName.lastIndexOf('.')) + ".exe " + path + fileName);
 	}
 	
 }

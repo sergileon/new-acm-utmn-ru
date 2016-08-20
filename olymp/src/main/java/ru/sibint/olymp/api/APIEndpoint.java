@@ -1,10 +1,8 @@
 package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
-import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import javax.activation.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -111,6 +109,23 @@ public class APIEndpoint {
 			pw.close();
 		}
 		
+		if(ext.equals("java")) {
+			String fileNameJava = "Solution" + "." + ext;
+			File FJava = new File(tempDir + fileNameJava);
+			System.out.println(tempDir + fileNameJava);
+			PrintWriter pwJava = null;
+			try {
+				pwJava = new PrintWriter(FJava);
+				pwJava.printf("%s", stringData.toString());
+				pwJava.flush();
+			} catch (FileNotFoundException e) {
+				logger.log(Level.SEVERE, "Can not create temp file");
+				logger.log(Level.SEVERE, e.getMessage());
+			} finally {
+				pwJava.close();
+			}
+		}
+		
 		String path = archivePath + taskId.toString() + "\\tests\\";
 		JSONObject jo = new JSONObject(getDescription(taskId));
 		if(jo.getString("Name").startsWith("L")) {
@@ -118,7 +133,7 @@ public class APIEndpoint {
 			String labTaskId = jo.getString("Name").split("_")[1];
 			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\";
 		}
-		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId);
+		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId, properties.getProperty("env"));
 		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
 		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
 		
@@ -128,6 +143,8 @@ public class APIEndpoint {
 			System.out.println(Paths.get(tempDir + String.valueOf(id) + ".exe").toAbsolutePath().toString());
 			Files.deleteIfExists(Paths.get(String.valueOf(id) + ".obj"));
 			Files.deleteIfExists(Paths.get(tempDir + String.valueOf(id) + ".exe"));
+			Files.deleteIfExists(Paths.get(tempDir + "Solution.class"));
+			Files.deleteIfExists(Paths.get(tempDir + "Solution.java"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -146,6 +163,7 @@ public class APIEndpoint {
 		return ret;
 	}
 	
+	@SuppressWarnings("static-access")
 	private void SendEmail(String email, String contestToken) {
 		String to = email;
 		String from = "i107th@gmail.com";
@@ -423,6 +441,30 @@ public class APIEndpoint {
 		}
 		return "{\"Status\":\"SUCCESS\",\"id\":\"" + id.toString() + "\"}";
 	}
+	
+	
+	@Path("/authadmin/")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateTask(InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		BufferedReader in = new BufferedReader(new InputStreamReader(data));
+		String line = "";
+		try {
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(stringData.toString());
+		JSONObject obj = new JSONObject(stringData.toString());
+		if(obj.getString("login") == "admin" && obj.getString("password") == "475508Th") {
+			return "{\"Status\":\"SUCCESS\"}";
+		}
+		return "{\"Status\":\"FAILED\"}";
+	}
+	
 }
 
 class SmtpAuthenticator extends Authenticator {

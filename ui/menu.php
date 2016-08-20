@@ -77,7 +77,6 @@
 				<option value="cpp">MS Visual C++ 2013</option>
 				<option value="cs">MS Visual C# 2013</option>
 				<option value="java">Java 1.8</option>
-				<option value="pas">Pascal</option>
 			</select>
 			<br>
 			<label for="comment">Your code:</label>

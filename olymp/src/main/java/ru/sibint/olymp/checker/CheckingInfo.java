@@ -6,6 +6,7 @@ public class CheckingInfo {
 	private int testNumber;
 	private long time;
 	private long memory;
+	private String message;
 	
 	public void setVerdict(CheckingResult newVerdict) {
 		verdict = newVerdict;
@@ -19,8 +20,16 @@ public class CheckingInfo {
 		testNumber = newTestNumber;
 	}
 	
+	public void setMessage(String newMessage) {
+		message = newMessage;
+	}
+	
 	public int getTestNumber() {
 		return testNumber;
+	}
+	
+	public String getMessage() {
+		return message;
 	}
 	
 	public void setTime(long newTime) {
