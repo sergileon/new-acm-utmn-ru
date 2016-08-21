@@ -14,6 +14,8 @@ CREATE TABLE Task
     TimeLimit INT,
     MemoryLimit INT,
 	IsAvailable TINYINT,
+	LabNum INT DEFAULT -1,
+	LabTaskNum INT DEFAULT -1,
     Description TEXT NOT NULL
 );
 CREATE TABLE Test

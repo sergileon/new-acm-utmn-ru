@@ -128,9 +128,9 @@ public class APIEndpoint {
 		
 		String path = archivePath + taskId.toString() + "\\tests\\";
 		JSONObject jo = new JSONObject(getDescription(taskId));
-		if(jo.getString("Name").startsWith("L")) {
-			String labId = jo.getString("Name").substring(1).split("_")[0];
-			String labTaskId = jo.getString("Name").split("_")[1];
+		String labId = jo.getString("LabNum");
+		if(!labId.equals("-1")) {
+			String labTaskId = jo.getString("LabTaskNum");
 			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\";
 		}
 		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId, properties.getProperty("env"));
@@ -316,9 +316,9 @@ public class APIEndpoint {
 		String testContents = "";
 		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".in";
 		JSONObject jo = new JSONObject(getDescription(taskId));
-		if(jo.getString("Name").startsWith("L")) {
-			String labId = jo.getString("Name").substring(1).split("_")[0];
-			String labTaskId = jo.getString("Name").split("_")[1];
+		String labId = jo.getString("LabNum");
+		if(!labId.equals("-1")) {
+			String labTaskId = jo.getString("LabTaskNum");
 			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".in";
 		}
 		System.out.println(path);
@@ -345,9 +345,9 @@ public class APIEndpoint {
 		String testContents = "";
 		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".out";
 		JSONObject jo = new JSONObject(getDescription(taskId));
-		if(jo.getString("Name").startsWith("L")) {
-			String labId = jo.getString("Name").substring(1).split("_")[0];
-			String labTaskId = jo.getString("Name").split("_")[1];
+		String labId = jo.getString("LabNum");
+		if(!labId.equals("-1")) {
+			String labTaskId = jo.getString("LabTaskNum");
 			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".out";
 		}
 		System.out.println(path);

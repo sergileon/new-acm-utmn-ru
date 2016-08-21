@@ -121,7 +121,7 @@ public class DBProxy {
 	
 	@SuppressWarnings("unchecked")
 	public static String getLabTasks(Integer lid) {
-		List<Object> list = evaluateQuery("SELECT Id, Name, Description as 'Desc' FROM Task WHERE Name LIKE '%L" + lid.toString() + "_%'", QueryType.SELECT);
+		List<Object> list = evaluateQuery("SELECT Id, Name, Description as 'Desc' FROM Task WHERE LabNum = " + lid.toString(), QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
 		JSONArray jsonArray = new JSONArray();
 		for(Object element : list) {
@@ -133,7 +133,7 @@ public class DBProxy {
 	
 	@SuppressWarnings("unchecked")
 	public static String getDescription(Integer id) {
-		List<Object> list = evaluateQuery("SELECT Id, Name, Description FROM Task WHERE Id = " + id.toString(), QueryType.SELECT);
+		List<Object> list = evaluateQuery("SELECT Id, Name, Description, LabNum, LabTaskNum FROM Task WHERE Id = " + id.toString(), QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
 		for(Object element : list) {
 			HashMap<String, String> hm = (HashMap<String, String>)element;
