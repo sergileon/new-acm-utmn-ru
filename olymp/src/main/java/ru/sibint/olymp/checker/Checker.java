@@ -119,6 +119,7 @@ public class Checker {
 	}
 	
 	public static String getProgramResult(String path, String fileName, String testName, String programType) {
+		if(programType.equals("JAVA")) fileName = "Solution";
 		TestChecker testChecker = new TestChecker(path, fileName, testName, programType);
 		Thread t = new Thread(testChecker);
 		ThreadMXBean tBean = ManagementFactory.getThreadMXBean();
@@ -166,6 +167,9 @@ public class Checker {
 			String outFile = filePath.substring(0, filePath.length() - 3) + ".out";
 			System.out.println(outFile);
 			if(!compareAnswers(getFileContents(outFile), result)) {
+				logger.log(Level.INFO, "Answer of the task is not equals to program output");
+				logger.log(Level.INFO, "Reference answer is: " + outFile);
+				logger.log(Level.INFO, "Programs answer is: " + result);
 				cInfo.setTestNumber(i);
 				cInfo.setVerdict(CheckingResult.WA);
 				cInfo.setTime(lastTime);
