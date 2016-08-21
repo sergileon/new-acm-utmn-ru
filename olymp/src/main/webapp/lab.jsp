@@ -2,6 +2,8 @@
 <%@page import="org.json.JSONObject"%>
 <%@page import="org.json.JSONArray"%>
 <%@page import="ru.sibint.olymp.api.APIEndpoint"%>
+<%@page pageEncoding="UTF-8"%>
+<%request.setCharacterEncoding("UTF-8");%>
 <html> 
 	<head> 
 		<title>Association of Tyumen Coders</title>
@@ -54,8 +56,10 @@
 								{
 									JSONObject j = jo.getJSONObject(i); 
 									out.println("<tr>");
-									String utf8String= new String(j.getString("Name").getBytes("UTF-8"), "windows-1251");
-									out.println("<td><font color=\"white\">" + (i + 1) + "</font></td>" +  "<td><a href=\"task.jsp?id="  + j.getString("Id") +  "\"><font color=\"white\">" + utf8String + "</font></a></td>");
+
+									//String utf8String= new String(j.getString("Name").getBytes("windows-1251"));
+									
+									out.println("<td><font color=\"white\">" + (i + 1) + "</font></td>" +  "<td><a href=\"task.jsp?id="  + j.getString("Id") +  "\"><font color=\"white\">" + j.getString("Name") + "</font></a></td>");
 									out.println("<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>");
 									out.println("</tr>");							
 								}

@@ -2,6 +2,8 @@
 <%@page import="org.json.JSONObject"%>
 <%@page import="ru.sibint.olymp.dbsync.DBProxy"%>
 <%@page import="ru.sibint.olymp.api.APIEndpoint"%>
+<%@page pageEncoding="UTF-8"%>
+<%request.setCharacterEncoding("UTF-8");%>
 <html> 
 	<head> 
 		<title>Association of Tyumen Coders</title>
