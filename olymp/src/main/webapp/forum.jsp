@@ -13,19 +13,12 @@
 		</script> 
 	</head> 
 
-	<font color="white">
 	<body> 
 		<div id="includedContent"></div>
+		
 		<br><br><br><br>
 		<center>
-			<h2><a href="http://www.utmn.ru">Tyumen State University</a>: Online Contester</h2>
+			<h2><font color="white">Forum is not available temporary</font></h2>
 		</center>
-
 	</body> 
-	</font>
-	
-	<style type="text/css">
-		body { background: rgb(94,94,94); !important; }
-	</style>
-	
 </html>
