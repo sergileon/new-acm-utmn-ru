@@ -15,10 +15,6 @@ import java.sql.ResultSetMetaData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-enum QueryType {
-	SELECT, INSERT, UPDATE
-}
-
 public class DBProxy {
 	
 	public static List<Object> evaluateQuery(String query, QueryType qt) {
@@ -84,7 +80,7 @@ public class DBProxy {
 	@SuppressWarnings("unchecked")
 	public static String getSubmissions(int count) {
 		List<Object> list = evaluateQuery(
-				"SELECT Submission.Id as Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent, Lang, Commentary "
+				"SELECT Submission.Id as Id, UserApp.Name as Name, UserId, TaskId, Verdict, TestId, TimeSpent, MemorySpent, Lang, Commentary "
 				+ "FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count)
 				, QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
@@ -100,6 +96,7 @@ public class DBProxy {
 			result += 
 					"{\"id\":\"" + hm.get("Id") + "\"," +  
 					"\"auth\":\"" + hm.get("Name") + "\"," +
+					"\"authid\":\"" + hm.get("UserId") + "\"," +
 					"\"task\":\"" + hm.get("TaskId") + "\"," +
 					"\"verd\":\"" + hm.get("Verdict") + "\"," +
 					"\"testid\":\"" + hm.get("TestId") + "\"," +

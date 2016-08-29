@@ -120,6 +120,31 @@
 	  </div>
 	</div>
 	
+	<div id="loginWindow" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Login window</h4>
+	      </div>
+	      <div class="modal-body">
+		<div class="form-group">
+			<form id="loginform" action="./login.jsp" method="POST">
+				<label for="comment"><font color="black">Login:</font></label>
+				<input type="text" class="form-control" id="login" name="login"/>
+				<br>
+				<label for="comment"><font color="black">Password:</font></label>
+				<input type="text" class="form-control" id="password" name="password" />
+			</form>
+		</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" id="loginbutton">Login</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal" id="logincancel">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 	
 	<nav class="navbar navbar-default  navbar-fixed" role="navigation">
 	  <div class="container-fluid">
@@ -158,15 +183,29 @@
 					<li><a href="lab.jsp?lab=3">Objects and Classes</a></li>
 				</ul>
 			</li>
-			<li><a href="#" data-toggle="modal" data-target="#statusWindow">Status</a></li>
+			<li><a href="#" data-toggle="modal" data-target="#statusWindow" id="statusWindowButton">Status</a></li>
 			<li><a href="stats.jsp">Statistics</a></li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">User<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
+			  	<%
+				    Cookie ck = null;
+				    Cookie[] cks = null;
+					cks = request.getCookies();
+				    if( cks != null ){
+				        for (int i = 0; i < cks.length; i++){
+				           ck = cks[i];
+				           if(ck.getName().equals("username")) {
+				       	   		out.println("<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#loginWindow\"><center>" + ck.getValue() + "</center></a></li>");
+				           }
+				        }
+				    }
+			  	%>
 				<li><a href="#" data-toggle="modal" data-target="#registerWindow"><center>Register</center></a></li>
 				<li class="divider"></li>
+				<li><a href="#" data-toggle="modal" data-target="#loginWindow"><center>Log In</center></a></li>
 			  </ul>
 			</li>
 		  </ul>
@@ -186,6 +225,10 @@
     <script src="js/bootstrap.min.js"></script>
 	<script>
 	
+		$("#statusWindowButton").click(function() {
+			$("#updatestatus").click();
+		});
+	
 		$("#updatestatus").click(function () {
 			$.ajax({
 				type: "GET",
@@ -197,7 +240,6 @@
 						$("#submissions tr:last").remove();
 					}
 					for(i = 0; i < data.length; i++) {
-						console.log(data[i]);
 						//$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
 						var verdict = data[i].verd;
 						if(verdict == 'WA') verdict = 'Wrong Answer';
@@ -211,7 +253,30 @@
 						if(lang == 'cs') lang = 'C#';
 						if(lang == 'cpp') lang = 'C++';
 						if(data[i].testid == '0') data[i].testid = '';
-						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td></tr>");
+						
+						var s1 = "<a href=\"/olymp/api/rest/getsubmission?id=" + data[i].id + "\">";
+						var s2 = "</a>";
+
+						usid = "";
+						
+						<%
+						    Cookie cookie = null;
+						    Cookie[] cookies = null;
+						    cookies = request.getCookies();
+						    boolean loggedin = false;
+						    if( cookies != null ){
+						        for (int i = 0; i < cookies.length; i++){
+						           cookie = cookies[i];
+						           if(cookie.getName().equals("user")) {
+						       	   		out.println("usid = \"" + cookie.getValue() + "\";");
+						           }
+						        }
+						    }
+						%>
+						if(usid != data[i].authid) {
+							s1 = ""; s2 = "";
+						}
+						$("#submissions tr:last").after("<tr><td><center>" + s1 + data[i].id + s2 + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {
@@ -236,7 +301,11 @@
 			});
 			return true;
 		});
-	
+		
+		$("#loginbutton").click(function () {
+			$("#loginform").submit();
+		});
+
 		$("#submit").click(function () {
 			var sc = $("#sourcecode").val();
 			var lng = $("#language").val();

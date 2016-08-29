@@ -370,6 +370,15 @@ public class APIEndpoint {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getSubmission(@QueryParam("id") Integer id) {
 		String fileName = tempDir + String.valueOf(id) + ".cpp";
+		if(!Files.exists(Paths.get(fileName))) {
+			fileName = tempDir + String.valueOf(id) + ".java";
+			if(!Files.exists(Paths.get(fileName))) {
+				fileName = tempDir + String.valueOf(id) + ".cs";
+				if(!Files.exists(Paths.get(fileName))) {
+					return "";
+				}
+			}
+		}
 		try {
 			Scanner S = new Scanner(new File(fileName));
 			String result = "";
