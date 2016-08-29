@@ -84,14 +84,18 @@ public class DBProxy {
 	@SuppressWarnings("unchecked")
 	public static String getSubmissions(int count) {
 		List<Object> list = evaluateQuery(
-				"SELECT Submission.Id as Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent "
+				"SELECT Submission.Id as Id, UserApp.Name as Name, TaskId, Verdict, TestId, TimeSpent, MemorySpent, Lang, Commentary "
 				+ "FROM Submission LEFT JOIN UserApp ON Submission.UserId = UserApp.Id ORDER BY Submission.Id DESC LIMIT 0," + String.valueOf(count)
 				, QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
 		String result = "[";
 		boolean bl = false;
 		for(Object element : list) {
+			String comment = "";
 			HashMap<String, String> hm = (HashMap<String, String>)element;
+			if(hm.get("Commentary") != null && !hm.get("Commentary").equals("")) {
+				comment = "Compilation Error";
+			}
 			if(bl) result += ",";
 			result += 
 					"{\"id\":\"" + hm.get("Id") + "\"," +  
@@ -100,6 +104,8 @@ public class DBProxy {
 					"\"verd\":\"" + hm.get("Verdict") + "\"," +
 					"\"testid\":\"" + hm.get("TestId") + "\"," +
 					"\"time\":\"" + hm.get("TimeSpent") + "\"," +
+					"\"comment\":\"" + comment + "\"," +
+					"\"lang\":\"" + hm.get("Lang") + "\"," +
 					"\"mem\":\"" + hm.get("MemorySpent") + "\"}";
 			bl = true;
 		}
@@ -171,20 +177,21 @@ public class DBProxy {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId) {
+	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId, String lang, String comment) {
 		List<Object> list = evaluateQuery("SELECT Id FROM UserApp WHERE email = '" + userEmail + "' AND token = '" + contestToken + "'", QueryType.SELECT);
 		if(list == null) return -2;
 		String userId = ((HashMap<String, String>)list.get(0)).get("Id");
-		list = evaluateQuery("INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "')", QueryType.INSERT);
+		list = evaluateQuery("INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId, Lang, Commentary) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "', '" + lang + "', '" + comment + "')", QueryType.INSERT);
 		if(list == null) return -1;
 		return ((Integer)list.get(0));
 	}
 
-	public static void updateSubmission(String id, String verdict, String testId, String timeForTask, String memoryForTask) {
+	public static void updateSubmission(String id, String verdict, String testId, String timeForTask, String memoryForTask, String comment) {
 		String qury = "UPDATE Submission SET "
 				+ "Verdict = '" + verdict + "', "
 				+ "TimeSpent = " + timeForTask + ", "
 				+ "MemorySpent = " + memoryForTask + ", "
+				+ "Commentary = '" + comment + "', "
 				+ "TestId = " + testId + " WHERE Id = " + id;
 		evaluateQuery(qury, QueryType.UPDATE);
 	}

@@ -47,6 +47,7 @@ class TestChecker implements Runnable {
 				command = path + fileName;
 			if(programType.equals("JAVA")) 
 				command = "java -classpath " + path + " " + fileName;
+			command = "java -classpath " + "\"" + path + "\"" + " " + fileName;
 			System.out.println(command);
 			ProcessBuilder pb = new ProcessBuilder(command);
 			pb.redirectInput(new File(testName));

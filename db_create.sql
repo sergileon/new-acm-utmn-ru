@@ -33,6 +33,8 @@ CREATE TABLE Submission
     Verdict TEXT,
     TimeSpent INT,
     MemorySpent INT,
+    Commentary TEXT,
+    Lang TEXT,
     UserId INT NOT NULL
 );
 CREATE TABLE TasksForUser

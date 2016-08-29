@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
+import com.sun.mail.handlers.message_rfc822;
 
 import org.json.JSONObject;
 
@@ -87,7 +88,7 @@ public class APIEndpoint {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
 
-		int id = DBProxy.addSubmission(userId, contestToken, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0");
+		int id = DBProxy.addSubmission(userId, contestToken, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0", ext, "");
 		if(id == -1) {
 			return "{\"status\":\"FAILED\",\"message\":\"System ERROR\"}";
 		}
@@ -135,7 +136,7 @@ public class APIEndpoint {
 		}
 		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId, properties.getProperty("env"));
 		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
-		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()));
+		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), result.getMessage());
 		
 		try {
 			System.out.println(Paths.get(String.valueOf(id) + ".obj").toAbsolutePath().toString());

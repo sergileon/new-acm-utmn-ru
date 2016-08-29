@@ -35,8 +35,10 @@
 								<th><center>#</center></th>
 								<th><center>Author</center></th>
 								<th><center>Task #</center></th>
+								<th><center>Language</center></th>
 								<th><center>Verdict</center></th>
 								<th><center>Test #</center></th>
+								<th><center>Comment</center></th>
 							  </tr>
 							</thead>
 							<tbody>
@@ -190,17 +192,26 @@
 				url: "/olymp/api/rest/submitstatus",
 				dataType: "json",
 				success: function(data) {
+					console.log(data);
 					while($('#submissions tr').length > 1) {
 						$("#submissions tr:last").remove();
 					}
 					for(i = 0; i < data.length; i++) {
+						console.log(data[i]);
 						//$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + data[i].verd + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem + "</center></td></tr>");
 						var verdict = data[i].verd;
 						if(verdict == 'WA') verdict = 'Wrong Answer';
 						if(verdict == 'TLE') verdict = 'Time Limit Exceeded';
 						if(verdict == 'MLE') verdict = 'Memory Limit Exceeded';
 						if(verdict == 'AC') verdict = 'Accepted';
-						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td></tr>");
+						if(data[i].lang == 'null') data[i].lang = '';
+						if(data[i].lang == 'null') data[i].lang = '';
+						var lang = data[i].lang;
+						if(lang == 'java') lang = 'Java';
+						if(lang == 'cs') lang = 'C#';
+						if(lang == 'cpp') lang = 'C++';
+						if(data[i].testid == '0') data[i].testid = '';
+						$("#submissions tr:last").after("<tr><td><center>" + data[i].id + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {
