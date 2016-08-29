@@ -85,6 +85,32 @@
 	  </div>
 	</div>
 	
+	<div id="loginWindow" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Login window</h4>
+	      </div>
+	      <div class="modal-body">
+		<div class="form-group">
+			<form id="loginform" action="./login.jsp" method="POST">
+				<label for="comment"><font color="black">Login:</font></label>
+				<input type="text" class="form-control" id="login" name="login"/>
+				<br>
+				<label for="comment"><font color="black">Password:</font></label>
+				<input type="text" class="form-control" id="password" name="password" />
+			</form>
+		</div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" id="loginbutton">Login</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal" id="logincancel">Cancel</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
 	<nav class="navbar navbar-default  navbar-fixed" role="navigation">
 	  <div class="container-fluid">
 		<div class="navbar-header">
@@ -127,18 +153,37 @@
     <script src="../js/bootstrap.min.js"></script>
 	<script>
 
-		function getCookie(name) {
-			var value = "; " + document.cookie;
-			var parts = value.split("; " + name + "=");
-			if (parts.length == 2) return parts.pop().split(";").shift();
-		}	
-		
-		$( document ).ready(function () {
-			//s = prompt('Enter admin password', '');
-			//if(s !== "adminpassword")
-			//	window.location.replace("http://acm.utmn.ru");
+		$(document).ready(function() {
+		    <%
+			    Cookie cookie = null;
+			    Cookie[] cookies = null;
+			    cookies = request.getCookies();
+			    boolean loggedin = false;
+			    if( cookies != null ){
+			        for (int i = 0; i < cookies.length; i++){
+			           cookie = cookies[i];
+			           if(cookie.getName().equals("admintoken")) {
+			        	   if(cookie.getValue().equals("FSDfhig84hwgrGDgh8we9ghdsfgdsFDS")) {
+			        		   loggedin = true;
+			        	   }
+			           }
+			        }
+			    }
+			    if(!loggedin) {
+			    	out.println("$(\"#loginWindow\").modal('show');");			    	
+			    }
+		    %>
 		});
-		
+
+		$("#loginbutton").click(function () {
+			$("#loginform").submit();
+		});
+
+		$("#logincancel").click(function () {
+			console.log("Login cancelled");
+			window.location.href = "/olymp/index.jsp";
+		});
+	
 		$("#updatestatus").click(function () {
 			$.ajax({
 				type: "GET",
