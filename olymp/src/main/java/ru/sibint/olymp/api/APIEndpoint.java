@@ -165,15 +165,15 @@ public class APIEndpoint {
 	}
 	
 	@SuppressWarnings("static-access")
-	private void SendEmail(String email, String contestToken) {
+	public void SendEmail(String email, String contestToken) {
 		String to = email;
-		String from = "i107th@gmail.com";
+		String from = "Tyumen_ACM_Society";
         String host = "smtp.gmail.com";
         String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
 		Properties props = System.getProperties();
 		props.setProperty("mail.smtp.host", host);
-		props.put("mail.stmp.user" , "i107th@gmail.com");
-		props.put("mail.smtp.password", "107475508th");
+		props.put("mail.stmp.user" , "acm.utmn@gmail.com");
+		props.put("mail.smtp.password", "475508th");
 		props.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
 	    props.setProperty("mail.smtp.socketFactory.fallback", "false");
 	    props.setProperty("mail.smtp.port", "465");
@@ -485,8 +485,8 @@ class SmtpAuthenticator extends Authenticator {
 
 	@Override
 	public PasswordAuthentication getPasswordAuthentication() {
-		String username = "i107th";
-		String password = "107475508th";
+		String username = "acm.utmn";
+		String password = "475508th";
         return new PasswordAuthentication(username, password);
 	}
 }

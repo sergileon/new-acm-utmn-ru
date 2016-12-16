@@ -1,5 +1,7 @@
 package ru.sibint.olymp.dbsync;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.ResultSetMetaData;
@@ -16,6 +19,29 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DBProxy {
+	
+	final static String propertiesFile = "config.properties";
+	static String user = "root";
+	static String password = "root";
+	Properties properties = null; 
+	
+	static Logger logger = Logger.getGlobal();
+	
+	{
+		properties = new Properties();
+		InputStream configStream = getClass().getClassLoader().getResourceAsStream(propertiesFile);
+		if(configStream != null) {
+			try {
+				properties.load(configStream);
+				user = properties.getProperty("mysql.user");
+				logger.log(Level.INFO, "Connect to MySQL with user " + user);
+				password = properties.getProperty("mysql.pass");
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Can not load properties file");
+				logger.log(Level.SEVERE, e.getMessage());
+			}
+		}
+	}
 	
 	public static List<Object> evaluateQuery(String query, QueryType qt) {
 		ArrayList<Object> ans = new ArrayList<Object>();
@@ -31,7 +57,7 @@ public class DBProxy {
 		Logger.getGlobal().log(Level.INFO, "Driver for MySQL is founded");
 		
 		try {
-			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=root");
+			connectionMysql = DriverManager.getConnection("jdbc:mysql://localhost:3306/olymp?user=" + user + "&password=" + password);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
