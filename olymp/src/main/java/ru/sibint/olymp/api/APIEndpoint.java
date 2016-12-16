@@ -229,6 +229,26 @@ public class APIEndpoint {
 		return "{\"Status\":\"SUCCESS\",\"message\":\"Check your email and find token to proceed with online contester.\"}";
 	}
 	
+	@Path("/registercontest/")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String registerContest(InputStream data) {
+		StringBuilder stringData = new StringBuilder();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(data));
+			String line = "";
+			while((line = in.readLine()) != null)
+				stringData.append(line);
+			System.out.println(stringData.toString());
+			
+			JSONObject obj = new JSONObject(stringData.toString());
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+		}
+		return "{\"Status\":\"SUCCESS\",\"message\":\"Contest created.\"}";
+	}
+	
 	@Path("/addtask/")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
