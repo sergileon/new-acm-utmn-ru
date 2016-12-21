@@ -42,6 +42,7 @@ public class APIEndpoint {
 	final static String propertiesFile = "config.properties";
 	static String tempDir = "";
 	static String unzip = "";
+	static String runPath = "";
 	Properties properties = null; 
 	
 	static Logger logger = Logger.getGlobal();
@@ -52,6 +53,7 @@ public class APIEndpoint {
 		if(configStream != null) {
 			try {
 				properties.load(configStream);
+				runPath = APIEndpoint.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1);
 				tempDir = System.getProperty("java.io.tmpdir") + "\\";
 				unzip = properties.getProperty("unzipcommand");
 			} catch (IOException e) {
@@ -122,7 +124,7 @@ public class APIEndpoint {
 			}
 		}
 		
-		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId, properties.getProperty("env"));
+		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId, properties.getProperty("env"), runPath);
 		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), result.getMessage());
 		
 		try {
