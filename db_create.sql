@@ -16,7 +16,9 @@ CREATE TABLE Task
 	IsAvailable TINYINT,
 	LabNum INT DEFAULT -1,
 	LabTaskNum INT DEFAULT -1,
-    Description TEXT NOT NULL
+    Description TEXT NOT NULL,
+    Checker TEXT,
+    CheckerLanguage VARCHAR(255)
 );
 CREATE TABLE Test
 (
@@ -34,6 +36,7 @@ CREATE TABLE Submission
     TimeSpent INT,
     MemorySpent INT,
     Commentary TEXT,
+	Code TEXT,
     Lang TEXT,
     UserId INT NOT NULL
 );
@@ -92,9 +95,16 @@ ALTER TABLE TasksForUser ADD FOREIGN KEY (UserId) REFERENCES UserApp (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdContest) REFERENCES Contest (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdTask) REFERENCES Task (Id);
 
+INSERT INTO UserApp(Email, Token, Name) VALUES ("108th@mail.ru", "475508", "Judge");
 
 INSERT INTO Task(Name, Description) VALUES ("A + B", "Please calculate A + B and write result to the standard output.");
 INSERT INTO Task(Name, Description) VALUES ("A - B", "Please calculate A - B and write result to the standard output.");
 INSERT INTO Task(Name, Description) VALUES ("A * B", "Please calculate A * B and write result to the standard output.");
 INSERT INTO Task(Name, Description) VALUES ("A + B Hard", "Please calculate A + B and write result to the standard output.");
 INSERT INTO Task(Name, Description) VALUES ("A * B Hard", "Please calculate A * B and write result to the standard output.");
+
+INSERT INTO Test(TaskId, InputData, OutputData) VALUES (1, "1\n2", "3\n");
+INSERT INTO Test(TaskId, InputData, OutputData) VALUES (2, "1\n2", "-1\n");
+INSERT INTO Test(TaskId, InputData, OutputData) VALUES (3, "1\n2", "2\n");
+INSERT INTO Test(TaskId, InputData, OutputData) VALUES (4, "14687236487236478234\n57832647823648723648", "7251988431088520187\n");
+INSERT INTO Test(TaskId, InputData, OutputData) VALUES (5, "112431\n2123123", "238704842013\n");

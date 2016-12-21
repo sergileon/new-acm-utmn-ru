@@ -7,10 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.ResultSetMetaData;
@@ -200,11 +197,11 @@ public class DBProxy {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId, String lang, String comment) {
+	public static int addSubmission(String userEmail, String contestToken, String taskId, String verdict, String timeForTask, String memoryForTask, String testId, String lang, String comment, String code) {
 		List<Object> list = evaluateQuery("SELECT Id FROM UserApp WHERE email = '" + userEmail + "' AND token = '" + contestToken + "'", QueryType.SELECT);
 		if(list == null) return -2;
 		String userId = ((HashMap<String, String>)list.get(0)).get("Id");
-		list = evaluateQuery("INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId, Lang, Commentary) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "', '" + lang + "', '" + comment + "')", QueryType.INSERT);
+		list = evaluateQuery("INSERT INTO Submission (TaskId, Verdict, TimeSpent, MemorySpent, UserId, TestId, Lang, Commentary, Code) VALUES ('" + taskId + "', '" + verdict+ "', '" + timeForTask + "', '" + memoryForTask + "', '" + userId + "', '" + testId + "', '" + lang + "', '" + comment + "', '" + code + "')", QueryType.INSERT);
 		if(list == null) return -1;
 		return ((Integer)list.get(0));
 	}
@@ -217,6 +214,43 @@ public class DBProxy {
 				+ "Commentary = '" + comment + "', "
 				+ "TestId = " + testId + " WHERE Id = " + id;
 		evaluateQuery(qury, QueryType.UPDATE);
+	}
+
+	public static String getTestInputData(Integer taskId, Integer testId) {
+		String result = "";
+		String qury = "SELECT InputData FROM Test WHERE TaskId = " + taskId.toString();
+		Map<String, String> mp = (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(testId - 1));
+		return mp.get("InputData");
+	}
+
+	public static String getTestOutputData(Integer taskId, Integer testId) {
+		String result = "";
+		String qury = "SELECT OutputData FROM Test WHERE TaskId = " + taskId.toString();
+		Map<String, String> mp = (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(testId - 1));
+		return mp.get("OutputData");
+	}
+
+	public static List<Map<String, String>> getAllTestData(Integer taskId) {
+		String result = "";
+		String qury = "SELECT InputData, OutputData FROM Test WHERE TaskId = " + taskId.toString();
+		List<Object> lo = evaluateQuery(qury, QueryType.SELECT);
+		List<Map<String, String>> res = new ArrayList<Map<String, String>>();
+		for(int i = 0; i < lo.size(); i++) {
+			Map<String, String> mp = (Map<String, String>)(lo.get(i));
+			Map<String, String> mss = new HashMap<String, String>();
+			mss.put("testId", String.valueOf(i + 1));
+			mss.put("in", mp.get("InputData"));
+			mss.put("out", mp.get("OutputData"));
+			res.add(mss);
+		}
+		return res;
+	}
+
+	public static String getSubmissionCode(Integer submissionId) {
+		String result = "";
+		String qury = "SELECT Code FROM Submission WHERE Id = " + submissionId.toString();
+		Map<String, String> mp = (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(0));
+		return mp.get("Code");
 	}
 
 	public static Integer updateTask(Integer Id, String title, String description) {

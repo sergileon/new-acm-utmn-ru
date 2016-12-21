@@ -1,17 +1,16 @@
 package ru.sibint.olymp.checker;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ru.sibint.olymp.compiler.Compiler;
+import ru.sibint.olymp.dbsync.DBProxy;
 
 class TestChecker implements Runnable {
 
@@ -19,16 +18,16 @@ class TestChecker implements Runnable {
 	
 	private String path;
 	private String fileName;
-	private String testName;
+	private String testInputData;
 	private String programType;
 	private String answer = "";
 	private Process currentProcess;
 	private long memoryUsage = 0;
 	
-	public TestChecker(String _path, String _fileName, String _testName, String _programType) {
+	public TestChecker(String _path, String _fileName, String _testInputData, String _programType) {
 		path = _path;
 		fileName = _fileName;
-		testName = _testName;
+		testInputData = _testInputData;
 		programType = _programType;
 	}
 	
@@ -50,7 +49,15 @@ class TestChecker implements Runnable {
 			command = "java -classpath " + "\"" + path + "\"" + " " + fileName;
 			System.out.println(command);
 			ProcessBuilder pb = new ProcessBuilder(command);
-			pb.redirectInput(new File(testName));
+
+			File f = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".tmp");
+			PrintWriter pw = new PrintWriter(f);
+			pw.print(testInputData);
+			pw.flush();
+			pw.close();
+
+			pb.redirectInput(f);
+
 			long startMemory = Runtime.getRuntime().freeMemory();
 			currentProcess = pb.start();
 			long endMemory = Runtime.getRuntime().freeMemory();
@@ -65,7 +72,7 @@ class TestChecker implements Runnable {
 			}
 			answer = sb.toString();
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName + " < " + testName);
+			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName);
 			logger.log(Level.SEVERE, e.getMessage());
 		}
 	}
@@ -102,26 +109,9 @@ public class Checker {
 		return prgAns.equals(refAns);
 	}
 	
-	public static String getFileContents(String path) {
-		File F = new File(path);
-		try {
-			Scanner S = new Scanner(F);
-			String answer = "";
-			while(S.hasNext()) {
-				answer += S.next();
-			}
-			S.close();
-			return answer;
-		} catch (FileNotFoundException e) {
-			logger.log(Level.SEVERE, "Cant read file contents from given path: " + path);
-			logger.log(Level.SEVERE, e.getMessage());
-		}
-		return null;
-	}
-	
-	public static String getProgramResult(String path, String fileName, String testName, String programType) {
+	public static String getProgramResult(String path, String fileName, String testInputData, String programType) {
 		if(programType.equals("JAVA")) fileName = "Solution";
-		TestChecker testChecker = new TestChecker(path, fileName, testName, programType);
+		TestChecker testChecker = new TestChecker(path, fileName, testInputData, programType);
 		Thread t = new Thread(testChecker);
 		ThreadMXBean tBean = ManagementFactory.getThreadMXBean();
 		t.start();
@@ -135,13 +125,13 @@ public class Checker {
 				return null;
 			}
 		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE, "Can't check test " + testName);
+			logger.log(Level.SEVERE, "Can't check test");
 			logger.log(Level.SEVERE, e.getMessage());
 		}
 		return testChecker.getAnswer();
 	}
 
-	private static CheckingInfo check(String taskPath, String path, String fileName, int taskId, String progType, String environment) {
+	private static CheckingInfo check(String path, String fileName, int taskId, String progType, String environment) {
 		String newFileName = ""; 
 		if(progType.equals("EXE")) {
 			newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
@@ -149,27 +139,23 @@ public class Checker {
 		} else {
 			newFileName = fileName.substring(0, fileName.lastIndexOf('.'));
 		}
-		System.out.println("Checking task on the path " + taskPath);
+		System.out.println("Checking task on the path with fileName " + fileName);
 		
 		CheckingInfo cInfo = new CheckingInfo();
 		cInfo.setVerdict(CheckingResult.AC);
-		int i = 0;
-		for(File F: new File(taskPath).listFiles()) {
-			i++;
-			if(F.getAbsolutePath().endsWith(".out")) continue;
-			String filePath = F.getAbsolutePath();
-			String result = getProgramResult(path, newFileName, filePath, progType);
+		List<Map<String, String>> tests = DBProxy.getAllTestData(taskId);
+
+		for(int i = 0; i < tests.size(); i++) {
+			String result = getProgramResult(path, newFileName, tests.get(i).get("in"), progType);
 			if(result == null) {
-				cInfo.setTestNumber(i);
+				cInfo.setTestNumber(i + 1);
 				cInfo.setVerdict(CheckingResult.TLE);
 				cInfo.setTime(lastTime);
 				break;
 			}
-			String outFile = filePath.substring(0, filePath.length() - 3) + ".out";
-			System.out.println(outFile);
-			if(!compareAnswers(getFileContents(outFile), result)) {
+			if(!compareAnswers(tests.get(i).get("out"), result)) {
 				logger.log(Level.INFO, "Answer of the task is not equals to program output");
-				logger.log(Level.INFO, "Reference answer is: " + outFile);
+				logger.log(Level.INFO, "Reference answer is: " + tests.get(i).get("out"));
 				logger.log(Level.INFO, "Programs answer is: " + result);
 				cInfo.setTestNumber(i);
 				cInfo.setVerdict(CheckingResult.WA);
@@ -186,7 +172,7 @@ public class Checker {
 		return cInfo;
 	}
 	
-	public static CheckingInfo checkProgram(String archivePath, String path, String fileName, int taskId, String environment) {
+	public static CheckingInfo checkProgram(String path, String fileName, int taskId, String environment) {
 		if(fileName.endsWith(".cpp")) {
 			String result = Compiler.compileCPlusPlus(path, fileName);
 			if(result != null) {
@@ -195,7 +181,7 @@ public class Checker {
 				ci.setMessage(result);
 				return ci;
 			}
-			return check(archivePath, path, fileName, taskId, "EXE", environment);
+			return check(path, fileName, taskId, "EXE", environment);
 		} else
 		if(fileName.endsWith(".cs")) {
 			String result = Compiler.compileCSharp(path, fileName);
@@ -205,7 +191,7 @@ public class Checker {
 				ci.setMessage(result);
 				return ci;
 			}
-			return check(archivePath, path, fileName, taskId, "EXE", environment);
+			return check(path, fileName, taskId, "EXE", environment);
 		} else
 		if(fileName.endsWith(".java")) {
 			String result = Compiler.compileJava(path, fileName);
@@ -215,7 +201,7 @@ public class Checker {
 				ci.setMessage(result);
 				return ci;
 			}
-			return check(archivePath, path, fileName, taskId, "JAVA", environment);
+			return check(path, fileName, taskId, "JAVA", environment);
 		}
 		return null;
 	}

@@ -1,8 +1,6 @@
 package ru.sibint.olymp.api;
 
 import java.io.BufferedReader;
-import javax.mail.*;
-import javax.mail.internet.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.Random;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +26,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
-import com.sun.mail.handlers.message_rfc822;
 
 import org.json.JSONObject;
 
@@ -38,13 +33,14 @@ import ru.sibint.olymp.checker.Checker;
 import ru.sibint.olymp.checker.CheckingInfo;
 import ru.sibint.olymp.checker.CheckingResult;
 import ru.sibint.olymp.dbsync.DBProxy;
+import ru.sibint.olymp.util.EMailSender;
+import ru.sibint.olymp.util.Utils;
 
 @Path("/rest/")
 public class APIEndpoint {
 
 	final static String propertiesFile = "config.properties";
 	static String tempDir = "";
-	static String archivePath = "";
 	static String unzip = "";
 	Properties properties = null; 
 	
@@ -56,8 +52,7 @@ public class APIEndpoint {
 		if(configStream != null) {
 			try {
 				properties.load(configStream);
-				tempDir = properties.getProperty("tempdir");
-				archivePath = properties.getProperty("archivedir");
+				tempDir = System.getProperty("java.io.tmpdir");
 				unzip = properties.getProperty("unzipcommand");
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Can not load properties file");
@@ -88,7 +83,7 @@ public class APIEndpoint {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
 
-		int id = DBProxy.addSubmission(userId, contestToken, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0", ext, "");
+		int id = DBProxy.addSubmission(userId, contestToken, taskId.toString(), CheckingResult.WAIT.toString(), "0", "0", "0", ext, "", stringData.toString());
 		if(id == -1) {
 			return "{\"status\":\"FAILED\",\"message\":\"System ERROR\"}";
 		}
@@ -127,15 +122,7 @@ public class APIEndpoint {
 			}
 		}
 		
-		String path = archivePath + taskId.toString() + "\\tests\\";
-		JSONObject jo = new JSONObject(getDescription(taskId));
-		String labId = jo.getString("LabNum");
-		if(!labId.equals("-1")) {
-			String labTaskId = jo.getString("LabTaskNum");
-			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\";
-		}
-		CheckingInfo result = Checker.checkProgram(path, tempDir, fileName, taskId, properties.getProperty("env"));
-		//CheckingInfo result = new CheckingInfo(); result.setVerdict(CheckingResult.AC);
+		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId, properties.getProperty("env"));
 		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), result.getMessage());
 		
 		try {
@@ -147,56 +134,9 @@ public class APIEndpoint {
 			Files.deleteIfExists(Paths.get(tempDir + "Solution.class"));
 			Files.deleteIfExists(Paths.get(tempDir + "Solution.java"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "SUCCESS: " + result.toString();
-	}
-	
-	private String genToken() {
-		String ret = "";
-		Random r = new Random(System.currentTimeMillis());
-		for(int i = 0; i < 8; i++) {
-			int x = r.nextInt(); if(x < 0) x = -x; x = x % 26;
-			char c = (char)(x + 65);
-			ret += c;
-		}
-		return ret;
-	}
-	
-	@SuppressWarnings("static-access")
-	public void SendEmail(String email, String contestToken) {
-		String to = email;
-		String from = "Tyumen_ACM_Society";
-        String host = "smtp.gmail.com";
-        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-		Properties props = System.getProperties();
-		props.setProperty("mail.smtp.host", host);
-		props.put("mail.stmp.user" , "acm.utmn@gmail.com");
-		props.put("mail.smtp.password", "475508th");
-		props.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
-	    props.setProperty("mail.smtp.socketFactory.fallback", "false");
-	    props.setProperty("mail.smtp.port", "465");
-	    props.setProperty("mail.smtp.socketFactory.port", "465");
-	    props.put("mail.smtp.auth", "true");
-	    props.put("mail.debug", "true");
-	    props.put("mail.store.protocol", "pop3");
-	    props.put("mail.transport.protocol", "smtp");
-
-	    Session session = Session.getDefaultInstance(props, new SmtpAuthenticator());
-	
-		try {
-			MimeMessage message = new MimeMessage(session);
-	        message.setFrom(new InternetAddress(from));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject("Registration on acm.utmn.ru");
-			message.setText("Hello! Thank you for registration on acm.utmn.ru! Use next token to submit tasks: " + contestToken);
-			Transport t = session.getTransport("smtp");
-			t.send(message);
-			System.out.println("Message was successfully sent.");
-		} catch (MessagingException mex) {
-			mex.printStackTrace();
-		}
 	}
 	
 	@Path("/adduser/")
@@ -213,7 +153,7 @@ public class APIEndpoint {
 			System.out.println(stringData.toString());
 			
 			JSONObject obj = new JSONObject(stringData.toString());
-			String contestToken = genToken();
+			String contestToken = Utils.genToken();
 			int code = DBProxy.addUser(obj.getString("username"), obj.getString("email"), contestToken);
 			System.out.println(code);
 			if(code == -1) {
@@ -222,7 +162,8 @@ public class APIEndpoint {
 			if(code == -2) {
 				return "{\"status\":\"FAILED\",\"message\":\"User already exists.\"}";
 			}
-			SendEmail(obj.getString("email"), contestToken);
+			EMailSender eMailSender = new EMailSender();
+			eMailSender.SendEmail(obj.getString("email"), contestToken);
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, e.getMessage());
 		}
@@ -288,9 +229,8 @@ public class APIEndpoint {
 		String extractCommand = "";
 		try {
 
-			String uploadedFileLocation = archivePath + "\\" + taskId.toString() + "\\tests\\";
-
-			if(!Files.exists(Paths.get(archivePath + "\\" + taskId.toString()), LinkOption.NOFOLLOW_LINKS)) {
+			String uploadedFileLocation = tempDir + "/" + taskId;
+			if(!Files.exists(Paths.get(uploadedFileLocation), LinkOption.NOFOLLOW_LINKS)) {
 				System.out.println("Dir doesn't exists.");
 				(new File(uploadedFileLocation)).mkdirs();
 			}
@@ -333,27 +273,7 @@ public class APIEndpoint {
 	public String getTaskTestIn(
 			@QueryParam("taskId") Integer taskId, 
 			@QueryParam("testId") Integer testId) {
-		
-		String testContents = "";
-		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".in";
-		JSONObject jo = new JSONObject(getDescription(taskId));
-		String labId = jo.getString("LabNum");
-		if(!labId.equals("-1")) {
-			String labTaskId = jo.getString("LabTaskNum");
-			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".in";
-		}
-		System.out.println(path);
-		File F = new File(path);
-		try {
-			Scanner S = new Scanner(F);
-			while(S.hasNextLine()) {
-				testContents += S.nextLine() + "<br>";
-			}
-			S.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return testContents;
+		return DBProxy.getTestInputData(taskId, testId);
 	}
 	
 	@Path("/getasktestout/")
@@ -362,55 +282,14 @@ public class APIEndpoint {
 	public String getTaskTestOut(
 			@QueryParam("taskId") Integer taskId, 
 			@QueryParam("testId") Integer testId) {
-		
-		String testContents = "";
-		String path = archivePath + "\\" + taskId + "\\tests\\" + testId + ".out";
-		JSONObject jo = new JSONObject(getDescription(taskId));
-		String labId = jo.getString("LabNum");
-		if(!labId.equals("-1")) {
-			String labTaskId = jo.getString("LabTaskNum");
-			path = archivePath + "\\..\\labs\\tests\\" + labId + "\\" + labId + "." + labTaskId + "\\" + testId + ".out";
-		}
-		System.out.println(path);
-		File F = new File(path);
-		try {
-			Scanner S = new Scanner(F);
-			while(S.hasNextLine()) {
-				testContents += S.nextLine() + "<br>";
-			}
-			S.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return testContents;
+		return DBProxy.getTestOutputData(taskId, testId);
 	}
 	
 	@Path("/getsubmission/")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getSubmission(@QueryParam("id") Integer id) {
-		String fileName = tempDir + String.valueOf(id) + ".cpp";
-		if(!Files.exists(Paths.get(fileName))) {
-			fileName = tempDir + String.valueOf(id) + ".java";
-			if(!Files.exists(Paths.get(fileName))) {
-				fileName = tempDir + String.valueOf(id) + ".cs";
-				if(!Files.exists(Paths.get(fileName))) {
-					return "";
-				}
-			}
-		}
-		try {
-			Scanner S = new Scanner(new File(fileName));
-			String result = "";
-			while(S.hasNextLine()) {
-				result = result + S.nextLine() + "\n";
-			}
-			S.close();
-			return result;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return "";
-		}
+		return DBProxy.getSubmissionCode(id);
 	}
 	
 	@Path("/submitstatus/")
@@ -495,18 +374,4 @@ public class APIEndpoint {
 		return "{\"Status\":\"FAILED\"}";
 	}
 	
-}
-
-class SmtpAuthenticator extends Authenticator {
-	public SmtpAuthenticator() {
-
-	    super();
-	}
-
-	@Override
-	public PasswordAuthentication getPasswordAuthentication() {
-		String username = "acm.utmn";
-		String password = "475508th";
-        return new PasswordAuthentication(username, password);
-	}
 }
