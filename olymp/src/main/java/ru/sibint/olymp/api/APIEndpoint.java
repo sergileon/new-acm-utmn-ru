@@ -52,7 +52,7 @@ public class APIEndpoint {
 		if(configStream != null) {
 			try {
 				properties.load(configStream);
-				tempDir = System.getProperty("java.io.tmpdir");
+				tempDir = System.getProperty("java.io.tmpdir") + "\\";
 				unzip = properties.getProperty("unzipcommand");
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Can not load properties file");

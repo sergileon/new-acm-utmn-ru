@@ -207,6 +207,7 @@ public class DBProxy {
 	}
 
 	public static void updateSubmission(String id, String verdict, String testId, String timeForTask, String memoryForTask, String comment) {
+		if(comment == null) comment = "";
 		String qury = "UPDATE Submission SET "
 				+ "Verdict = '" + verdict + "', "
 				+ "TimeSpent = " + timeForTask + ", "
