@@ -66,6 +66,7 @@ class TestChecker {
 
 			long startMemory = Runtime.getRuntime().freeMemory();
 			currentProcess = pb.start();
+			currentProcess.waitFor();
 			long endMemory = Runtime.getRuntime().freeMemory();
 			
 			memoryUsage = startMemory - endMemory;
@@ -88,6 +89,8 @@ class TestChecker {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName);
 			logger.log(Level.SEVERE, e.getMessage());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
