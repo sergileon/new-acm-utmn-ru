@@ -110,8 +110,8 @@ public class Checker {
 
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
-	private static long lastTime = 0;
-	private static long lastMem = 0;
+	private static Double lastTime = 0.0;
+	private static Long lastMem = 0L;
 	private ResultChecker resultChecker;
 
 	public Checker(String checkerCode, String checkerLanguage) {
@@ -127,6 +127,8 @@ public class Checker {
 		if(programType.equals("JAVA")) fileName = "Solution";
 		TestChecker testChecker = new TestChecker(path, fileName, testInputData, programType, runPath);
 		testChecker.run();
+		lastTime = testChecker.getTimeUsage();
+		lastMem = testChecker.getMemoryUsage();
 		return testChecker.getAnswer();
 	}
 

@@ -4,7 +4,7 @@ public class CheckingInfo {
 	
 	private CheckingResult verdict;
 	private int testNumber;
-	private long time;
+	private Double time;
 	private long memory;
 	private String message;
 	
@@ -32,11 +32,11 @@ public class CheckingInfo {
 		return message;
 	}
 	
-	public void setTime(long newTime) {
+	public void setTime(Double newTime) {
 		time = newTime;
 	}
 	
-	public long getTime() {
+	public Double getTime() {
 		return time;
 	}
 	
