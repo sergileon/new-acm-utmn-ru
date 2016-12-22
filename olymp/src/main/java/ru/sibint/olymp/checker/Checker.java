@@ -59,7 +59,7 @@ class TestChecker {
 			}
 			if(programType.equals("JAVA")) {
 				command += "java -classpath " + path + " " + fileName;
-				pb = new ProcessBuilder("java", "-classpath", path + " " + fileName);
+				pb = new ProcessBuilder("java", "-classpath", path, fileName);
 			}
 
 			System.out.println(command);
@@ -118,9 +118,9 @@ public class Checker {
 		resultChecker = new ResultChecker(checkerCode, checkerLanguage);
 	}
 
-	public boolean compareAnswers(String referenceAns, String programAns)
+	public boolean compareAnswers(String referenceAns, String programAns, String originalInput)
 	{
-		return resultChecker.check(referenceAns, programAns);
+		return resultChecker.check(originalInput, programAns);
 	}
 	
 	public static String getProgramResult(String path, String fileName, String testInputData, String programType, String runPath) {
@@ -152,7 +152,7 @@ public class Checker {
 				cInfo.setTime(lastTime);
 				break;
 			}
-			if(!compareAnswers(tests.get(i).get("out"), result)) {
+			if(!compareAnswers(tests.get(i).get("out"), result, tests.get(i).get("in"))) {
 				logger.log(Level.INFO, "Answer of the task is not equals to program output");
 				logger.log(Level.INFO, "Reference answer is: " + tests.get(i).get("out"));
 				logger.log(Level.INFO, "Programs answer is: " + result);

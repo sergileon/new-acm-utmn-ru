@@ -18,7 +18,10 @@ public class ResultChecker {
         if(checkerLanguage.equals("JAVA")) {
             File f = null;
             try {
-                f = File.createTempFile("temp/" + String.valueOf(System.nanoTime()) + "/Checker", ".java");
+                File f_dir = File.createTempFile("temp" + String.valueOf(System.nanoTime()), "");
+                f_dir.delete();
+                f_dir.mkdirs();
+                f = new File(f_dir.getAbsolutePath() + "/Checker.java");
                 PrintWriter pw = new PrintWriter(f);
                 pw.print(checkerCode);
                 pw.flush();
@@ -34,7 +37,7 @@ public class ResultChecker {
                     e.printStackTrace();
                 }
 
-                javaClassName = f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf('.'));
+                javaClassName = f_dir.getAbsolutePath();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -57,21 +60,33 @@ public class ResultChecker {
             }
             if(inputScanner.hasNext() || outputScanner.hasNext()) return false;
         } else {
-            ProcessBuilder pb = new ProcessBuilder("java", "-classpath", javaClassName);
             try {
-                File f = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".in");
-                PrintWriter pw = new PrintWriter(f);
-                pw.print(checkerCode);
+                File f_in = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".in");
+                PrintWriter pw = new PrintWriter(f_in);
+                pw.print(inputData);
                 pw.flush();
                 pw.close();
 
-                pb.redirectInput(f);
+                File f_out = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".out");
+                pw = new PrintWriter(f_out);
+                pw.print(outputData);
+                pw.flush();
+                pw.close();
+
+                ProcessBuilder pb = new ProcessBuilder("java", "-classpath", javaClassName, "Checker", f_in.getAbsolutePath(), f_out.getAbsolutePath());
                 Process currentProcess = pb.start();
                 currentProcess.waitFor();
                 InputStream is = currentProcess.getInputStream();
 
+                System.out.println("java -classpath " + javaClassName + " Checker " + f_in.getAbsolutePath() + " " + f_out.getAbsolutePath());
+
                 Scanner S = new Scanner(is);
-                return S.next().equals("OK");
+                StringBuilder sb = new StringBuilder();
+                while(S.hasNext()) {
+                    sb.append(S.next());
+                }
+                String answer = sb.toString();
+                return answer.equals("OK");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -82,3 +97,4 @@ public class ResultChecker {
     }
 
 }
+

@@ -109,3 +109,7 @@ INSERT INTO Test(TaskId, InputData, OutputData) VALUES (2, "1\n2", "-1\n");
 INSERT INTO Test(TaskId, InputData, OutputData) VALUES (3, "1\n2", "2\n");
 INSERT INTO Test(TaskId, InputData, OutputData) VALUES (4, "14687236487236478234\n57832647823648723648", "7251988431088520187\n");
 INSERT INTO Test(TaskId, InputData, OutputData) VALUES (5, "112431\n2123123", "238704842013\n");
+
+UPDATE Task SET Checker = "import java.util.Scanner;\nimport java.io.File;\nimport java.io.FileNotFoundException;\n\npublic class Checker {\n\n    public static void main(String... args) throws FileNotFoundException {\n        Scanner S_in = new Scanner(new File(args[0]));\n        Scanner S_out = new Scanner(new File(args[1]));\n        int a = S_in.nextInt();\n        int b = S_in.nextInt();\n        int c = S_out.nextInt();\n        if(a + b == c) System.out.println(\"OK\"); else System.out.println(\"WA\");\n    }\n}" WHERE Id = 1;
+
+UPDATE Task SET CheckerLanguage WHERE Id = 1;
