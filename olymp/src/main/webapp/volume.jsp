@@ -38,7 +38,7 @@
 			<td>
 				<div class="table-responsive">
 					<center>
-					<table class="table">
+					<table class="table table-sm">
 						<thead>
 						  <tr>
 							<th align="right"><font color="white">Task #</font></th>
@@ -55,7 +55,7 @@
 								for(int i = 0; i < jo.length(); i++)
 								{
 									JSONObject j = jo.getJSONObject(i); 
-									out.println("<tr>");
+									out.println("<tr class=\"table-info\">");
 									out.println("<td><font color=\"white\">" + (i + 1) + "</font></td>" +  "<td><a href=\"task.jsp?id="  + j.getString("Id") +  "\"><font color=\"white\">" + j.getString("Name") + "</font></a></td>");
 									out.println("<td><font color=\"white\">0</font></td><td><font color=\"white\">1 sec.</font></td><td><font color=\"white\">64 MB.</font></td>");
 									out.println("</tr>");							

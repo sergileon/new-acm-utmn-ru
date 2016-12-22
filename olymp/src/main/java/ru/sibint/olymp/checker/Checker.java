@@ -48,7 +48,6 @@ class TestChecker implements Runnable {
 	
 	public void run() {
 		try {
-
 			File f = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".tmp");
 			File f_out = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".out");
 			PrintWriter pw = new PrintWriter(f);
@@ -90,7 +89,6 @@ class TestChecker implements Runnable {
 				sb.append(line + "\n");
 			}
 			info = sb.toString();
-
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Can not execute command: " + path + fileName);
 			logger.log(Level.SEVERE, e.getMessage());

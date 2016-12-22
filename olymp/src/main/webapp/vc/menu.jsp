@@ -129,7 +129,7 @@
 	      </div>
 	      <div class="modal-body">
 		<div class="form-group">
-			<form id="loginform" action="./login.jsp" method="POST">
+			<form id="loginform" action="../login.jsp" method="POST">
 				<label for="comment"><font color="black">Login:</font></label>
 				<input type="text" class="form-control" id="login" name="login"/>
 				<br>
@@ -155,7 +155,7 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		  </button>
-		  <a class="navbar-brand" href="index.jsp">Tyumen ACM</a>
+		  <a class="navbar-brand" href="../index.jsp">Tyumen ACM</a>
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
@@ -165,26 +165,26 @@
 			<li class="dropdown">
 			  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Main Menu<b class="caret"></b></a>
 			  <ul class="dropdown-menu">
-				<li><a href="volume.jsp?volume=1">Problem Set</a></li>
+				<li><a href="../volume.jsp?volume=1">Problem Set</a></li>
 				<li class="divider"></li>
-				<li><a href="vc/contestlist.jsp">Contest</a></li>
+				<li><a href="contestlist.jsp">Contest</a></li>
 				<li class="divider"></li>
 				<li><a href="#" data-toggle="modal" data-target="#submitWindow">Submit</a></li>
 				<li class="divider"></li>
-				<li><a href="forum.jsp">Forum</a></li>
+				<li><a href="../forum.jsp">Forum</a></li>
 			  </ul>
 			</li>
 			<li class="dropdown">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">First Steps<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a href="lab.jsp?lab=0">Basic Level</a></li>
-					<li><a href="lab.jsp?lab=1">Conditions and Cycles</a></li>
-					<li><a href="lab.jsp?lab=2">Arrays and Strings</a></li>
-					<li><a href="lab.jsp?lab=3">Objects and Classes</a></li>
+					<li><a href="../lab.jsp?lab=0">Basic Level</a></li>
+					<li><a href="../lab.jsp?lab=1">Conditions and Cycles</a></li>
+					<li><a href="../lab.jsp?lab=2">Arrays and Strings</a></li>
+					<li><a href="../lab.jsp?lab=3">Objects and Classes</a></li>
 				</ul>
 			</li>
 			<li><a href="#" data-toggle="modal" data-target="#statusWindow" id="statusWindowButton">Status</a></li>
-			<li><a href="stats.jsp">Statistics</a></li>
+			<li><a href="../stats.jsp">Statistics</a></li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
 			<li class="dropdown">
@@ -221,8 +221,8 @@
 
 
 	<script src='https://www.google.com/recaptcha/api.js'></script>
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
 	<script>
 	
 		$("#statusWindowButton").click(function() {
@@ -383,5 +383,5 @@
 		});
 	</script>
 	<style type="text/css">
-		body {background: url(images/bg-pp-default.png) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
+		body {background: url(../images/bg-pp-default.png) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
 	</style>

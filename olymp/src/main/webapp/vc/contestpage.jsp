@@ -1,0 +1,31 @@
+<html> 
+	<head> 
+		<title>Association of Tyumen Coders</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="../css/dopstyle.css" rel="stylesheet" media="screen">
+		<script src="../js/jquery.js"></script>
+		<script> 
+		$(function(){
+		  $("#includedContent").load("menu.jsp");
+		});
+		</script> 
+	</head> 
+
+	<body> 
+		<div id="includedContent"></div>
+		<br><br><br><br>
+		<center>
+			<h2><font color="white">Create contest:</font></h2>
+			<form>
+				<table>
+					<tr><td>Contest: </td><td></td></tr>
+					<tr><td>Time left: </td><td></td></tr>
+					<tr><td>Tasks: </td><td></td></tr>
+					<tr><td>Submissions: </td><td></td></tr>
+				</table>
+			</form>
+		</center>
+	</body> 
+</html>
