@@ -11,8 +11,8 @@ CREATE TABLE Task
 (
     Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     Name VARCHAR(255) NOT NULL,
-    TimeLimit INT,
-    MemoryLimit INT,
+    TimeLimit INT DEFAULT 2,
+    MemoryLimit INT DEFAULT 64,
 	IsAvailable TINYINT,
 	LabNum INT DEFAULT -1,
 	LabTaskNum INT DEFAULT -1,
@@ -57,24 +57,23 @@ CREATE TABLE Contest
 	Length INT,
     Description TEXT NOT NULL
 );
+
 CREATE TABLE ContestTasks
 (
     IdContest INT NOT NULL,
     IdTask INT NOT NULL	
 );
-CREATE TABLE ContestInstance
-(
-	Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    IdContest INT NOT NULL,
-    StartTime DATETIME NOT NULL
-);
+
 CREATE TABLE ContestUser
 (
 	Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    IdContestInstance INT NOT NULL,
+	StartDate DATE NOT NULL,
+	EndDate DATE NOT NULL,
+    IdContest INT NOT NULL,
     IdUser INT NOT NULL
 );
-CREATE TABLE ContestStatus
+
+CREATE TABLE ContestSubmission
 (
     Id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     TaskId INT NOT NULL,
@@ -82,10 +81,8 @@ CREATE TABLE ContestStatus
     Verdict TEXT,
     TimeSpent INT,
     MemorySpent INT,
-    UserId INT NOT NULL,
-    ContestInstanceId INT NOT NULL
+    ContestUserId INT NOT NULL
 );
-
 
 ALTER TABLE Test ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
 ALTER TABLE Submission ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
@@ -94,14 +91,18 @@ ALTER TABLE Submission ADD FOREIGN KEY (UserId) REFERENCES UserApp (Id);
 ALTER TABLE TasksForUser ADD FOREIGN KEY (UserId) REFERENCES UserApp (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdContest) REFERENCES Contest (Id);
 ALTER TABLE ContestTasks ADD FOREIGN KEY (IdTask) REFERENCES Task (Id);
+ALTER TABLE ContestSubmission ADD FOREIGN KEY (ContestUserId) REFERENCES ContestUser (Id);
+ALTER TABLE ContestSubmission ADD FOREIGN KEY (TaskId) REFERENCES Task (Id);
+ALTER TABLE ContestUser ADD FOREIGN KEY (IdContest) REFERENCES Contest(Id);
+ALTER TABLE ContestUser ADD FOREIGN KEY (IdUser) REFERENCES UserApp (Id);
 
 INSERT INTO UserApp(Email, Token, Name) VALUES ("108th@mail.ru", "475508", "Judge");
 
-INSERT INTO Task(Name, Description) VALUES ("A + B", "Please calculate A + B and write result to the standard output.");
-INSERT INTO Task(Name, Description) VALUES ("A - B", "Please calculate A - B and write result to the standard output.");
-INSERT INTO Task(Name, Description) VALUES ("A * B", "Please calculate A * B and write result to the standard output.");
-INSERT INTO Task(Name, Description) VALUES ("A + B Hard", "Please calculate A + B and write result to the standard output.");
-INSERT INTO Task(Name, Description) VALUES ("A * B Hard", "Please calculate A * B and write result to the standard output.");
+INSERT INTO Task(Name, Description, IsAvailable) VALUES ("A + B", "Please calculate A + B and write result to the standard output.", true);
+INSERT INTO Task(Name, Description, IsAvailable) VALUES ("A - B", "Please calculate A - B and write result to the standard output.", true);
+INSERT INTO Task(Name, Description, IsAvailable) VALUES ("A * B", "Please calculate A * B and write result to the standard output.", true);
+INSERT INTO Task(Name, Description, IsAvailable) VALUES ("A + B Hard", "Please calculate A + B and write result to the standard output.", true);
+INSERT INTO Task(Name, Description, IsAvailable) VALUES ("A * B Hard", "Please calculate A * B and write result to the standard output.", true);
 
 INSERT INTO Test(TaskId, InputData, OutputData) VALUES (1, "1\n2", "3\n");
 INSERT INTO Test(TaskId, InputData, OutputData) VALUES (2, "1\n2", "-1\n");
