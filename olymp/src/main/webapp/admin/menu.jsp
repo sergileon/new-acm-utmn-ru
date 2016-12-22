@@ -285,5 +285,5 @@
 	
 	</script>
 	<style type="text/css">
-		body { background: rgb(94,94,94) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
+		body { background: url(../images/bg-pp-default.png) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; !important;}
 	</style>

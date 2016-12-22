@@ -231,6 +231,12 @@ public class DBProxy {
 		return mp.get("OutputData");
 	}
 
+	public static Map<String, String> getTaskChecker(Integer taskId) {
+		String result = "";
+		String qury = "SELECT Checker, CheckerLanguage FROM Task WHERE Id = " + taskId.toString();
+		return (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(0));
+	}
+
 	public static List<Map<String, String>> getAllTestData(Integer taskId) {
 		String result = "";
 		String qury = "SELECT InputData, OutputData FROM Test WHERE TaskId = " + taskId.toString();

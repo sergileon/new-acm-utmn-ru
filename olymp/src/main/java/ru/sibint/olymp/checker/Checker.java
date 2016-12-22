@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import ru.sibint.olymp.compiler.Compiler;
 import ru.sibint.olymp.dbsync.DBProxy;
 
-class TestChecker implements Runnable {
+class TestChecker {
 
 	static Logger logger = Logger.getGlobal();
 
@@ -42,10 +42,6 @@ class TestChecker implements Runnable {
 		return info;
 	}
 
-	public void stopProcess() {
-		currentProcess.destroy();
-	}
-	
 	public void run() {
 		try {
 			File f = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".tmp");
@@ -94,9 +90,15 @@ class TestChecker implements Runnable {
 			logger.log(Level.SEVERE, e.getMessage());
 		}
 	}
-	
+
 	public long getMemoryUsage() {
-		return memoryUsage;
+		String value = info.split("peak memory:   ")[1].split(" of")[0];
+		return Long.parseLong(value);
+	}
+
+	public Double getTimeUsage() {
+		String value = info.split("time consumed: ")[1].split(" of")[0];
+		return Double.parseDouble(value);
 	}
 
 }
@@ -107,49 +109,25 @@ public class Checker {
 	//TODO Change hardcoded constants
 	private static long lastTime = 0;
 	private static long lastMem = 0;
+	private ResultChecker resultChecker;
 
-	public static boolean compareAnswers(String referenceAns, String programAns)
+	public Checker(String checkerCode, String checkerLanguage) {
+		resultChecker = new ResultChecker(checkerCode, checkerLanguage);
+	}
+
+	public boolean compareAnswers(String referenceAns, String programAns)
 	{
-		String refAns = ""; 
-		for(int i = 0; i < referenceAns.length(); i++)
-		{
-			if(referenceAns.charAt(i) >= 33) {
-				refAns += referenceAns.charAt(i);
-			}
-		}
-		String prgAns = ""; 
-		for(int i = 0; i < programAns.length(); i++)
-		{
-			if(programAns.charAt(i) >= 33) {
-				prgAns += programAns.charAt(i);
-			}
-		}
-		return prgAns.equals(refAns);
+		return resultChecker.check(referenceAns, programAns);
 	}
 	
 	public static String getProgramResult(String path, String fileName, String testInputData, String programType, String runPath) {
 		if(programType.equals("JAVA")) fileName = "Solution";
 		TestChecker testChecker = new TestChecker(path, fileName, testInputData, programType, runPath);
-		Thread t = new Thread(testChecker);
-		ThreadMXBean tBean = ManagementFactory.getThreadMXBean();
-		t.start();
-		try {
-			t.join(200000);
-			long time = tBean.getThreadCpuTime(t.getId());
-			lastTime = time;
-			lastMem = testChecker.getMemoryUsage();
-			if(t.isAlive()) {
-				testChecker.stopProcess();
-				return null;
-			}
-		} catch (InterruptedException e) {
-			logger.log(Level.SEVERE, "Can't check test");
-			logger.log(Level.SEVERE, e.getMessage());
-		}
+		testChecker.run();
 		return testChecker.getAnswer();
 	}
 
-	private static CheckingInfo check(String path, String fileName, int taskId, String progType, String environment, String runPath) {
+	private CheckingInfo check(String path, String fileName, int taskId, String progType, String environment, String runPath) {
 		String newFileName = ""; 
 		if(progType.equals("EXE")) {
 			newFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".exe";
@@ -190,7 +168,7 @@ public class Checker {
 		return cInfo;
 	}
 	
-	public static CheckingInfo checkProgram(String path, String fileName, int taskId, String environment, String runPath) {
+	public CheckingInfo checkProgram(String path, String fileName, int taskId, String environment, String runPath) {
 		if(fileName.endsWith(".cpp")) {
 			String result = Compiler.compileCPlusPlus(path, fileName);
 			if(result != null) {

@@ -24,8 +24,4 @@
 	</body> 
 	</font>
 	
-	<style type="text/css">
-		body { background: rgb(94,94,94); !important; }
-	</style>
-	
 </html>

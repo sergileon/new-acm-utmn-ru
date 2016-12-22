@@ -13,7 +13,7 @@
 		<script src="../js/jquery.js"></script> 
 		<script> 
 		$(function(){
-		  $("#includedContent").load("menu.php"); 
+		  $("#includedContent").load("menu.jsp");
 		});
 		</script> 
 	</head> 

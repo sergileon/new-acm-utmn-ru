@@ -123,8 +123,10 @@ public class APIEndpoint {
 				pwJava.close();
 			}
 		}
-		
-		CheckingInfo result = Checker.checkProgram(tempDir, fileName, taskId, properties.getProperty("env"), runPath);
+
+		Checker checker = new Checker(DBProxy.getTaskChecker(taskId).get("Checker"), DBProxy.getTaskChecker(taskId).get("CheckerLanguage"));
+
+		CheckingInfo result = checker.checkProgram(tempDir, fileName, taskId, properties.getProperty("env"), runPath);
 		DBProxy.updateSubmission(String.valueOf(id), result.getCheckingResult().toString(), String.valueOf(result.getTestNumber()), String.valueOf(result.getTime()), String.valueOf(result.getMemory()), result.getMessage());
 		
 		try {
