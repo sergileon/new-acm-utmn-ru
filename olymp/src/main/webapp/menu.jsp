@@ -19,40 +19,41 @@
 	</div>
 
 	<div id="statusWindow" class="modal fade" role="dialog">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Status</h4>
-	      </div>
-			<div class="modal-body">
-				<div class="modal-isi-body">
-					<div class="table-responsive">
-						<center>
-						<table class="table table-hover" id="submissions">
-							<thead>
-							  <tr>
-								<th><center>#</center></th>
-								<th><center>Author</center></th>
-								<th><center>Task #</center></th>
-								<th><center>Language</center></th>
-								<th><center>Verdict</center></th>
-								<th><center>Test #</center></th>
-								<th><center>Comment</center></th>
-							  </tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" id="updatestatus">Update</button>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-	      </div>
-	    </div>
-	  </div>
+	  <div class="modal-dialog" style="width: 80%;">
+		  <div class="modal-content">
+			  <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Status</h4>
+              </div>
+			  <div class="modal-body">
+                    <div class="modal-isi-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="submissions">
+                                <thead>
+                                  <tr>
+                                    <th><center>#</center></th>
+                                    <th><center>Author</center></th>
+                                    <th><center>Task #</center></th>
+                                    <th><center>Language</center></th>
+                                    <th><center>Verdict</center></th>
+                                      <th><center>Test #</center></th>
+                                      <th><center>Comment</center></th>
+                                      <th><center>Time</center></th>
+                                      <th><center>Memory</center></th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="updatestatus">Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+      </div>
 	</div>
 
 
@@ -276,7 +277,7 @@
 						if(usid != data[i].authid) {
 							s1 = ""; s2 = "";
 						}
-						$("#submissions tr:last").after("<tr><td><center>" + s1 + data[i].id + s2 + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td></tr>");
+						$("#submissions tr:last").after("<tr><td><center>" + s1 + data[i].id + s2 + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem / 1024 + "KB</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {
