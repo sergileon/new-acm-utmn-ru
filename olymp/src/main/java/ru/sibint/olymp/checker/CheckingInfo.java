@@ -4,8 +4,8 @@ public class CheckingInfo {
 	
 	private CheckingResult verdict;
 	private int testNumber;
-	private Double time;
-	private long memory;
+	private Double time = 0.00;
+	private Long memory = 0L;
 	private String message;
 	
 	public void setVerdict(CheckingResult newVerdict) {

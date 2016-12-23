@@ -15,39 +15,41 @@ public class ResultChecker {
     public ResultChecker(String _checkerCode, String _checkerLanguage) {
         checkerCode = _checkerCode;
         checkerLanguage = _checkerLanguage;
-        if(checkerLanguage.equals("JAVA")) {
-            File f = null;
-            try {
-                File f_dir = File.createTempFile("temp" + String.valueOf(System.nanoTime()), "");
-                f_dir.delete();
-                f_dir.mkdirs();
-                f = new File(f_dir.getAbsolutePath() + "/Checker.java");
-                PrintWriter pw = new PrintWriter(f);
-                pw.print(checkerCode);
-                pw.flush();
-                pw.close();
-
-                ProcessBuilder pb = new ProcessBuilder("javac", f.getAbsolutePath());
+        if (checkerLanguage != null) {
+            if (checkerLanguage.equals("JAVA")) {
+                File f = null;
                 try {
-                    Process currentProcess = pb.start();
-                    currentProcess.waitFor();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    File f_dir = File.createTempFile("temp" + String.valueOf(System.nanoTime()), "");
+                    f_dir.delete();
+                    f_dir.mkdirs();
+                    f = new File(f_dir.getAbsolutePath() + "/Checker.java");
+                    PrintWriter pw = new PrintWriter(f);
+                    pw.print(checkerCode);
+                    pw.flush();
+                    pw.close();
+
+                    ProcessBuilder pb = new ProcessBuilder("javac", f.getAbsolutePath());
+                    try {
+                        Process currentProcess = pb.start();
+                        currentProcess.waitFor();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    javaClassName = f_dir.getAbsolutePath();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                javaClassName = f_dir.getAbsolutePath();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                checkerCode = null;
             }
-        } else {
-            checkerCode = null;
         }
     }
 
-    public boolean check(String inputData, String outputData) {
+    public boolean check(String inputData, String outputData, String inputTestData) {
         if(checkerCode == null) { //default checker
             Scanner inputScanner = new Scanner(inputData);
             Scanner outputScanner = new Scanner(outputData);
@@ -63,7 +65,7 @@ public class ResultChecker {
             try {
                 File f_in = File.createTempFile("temp" + String.valueOf(System.nanoTime()), ".in");
                 PrintWriter pw = new PrintWriter(f_in);
-                pw.print(inputData);
+                pw.print(inputTestData);
                 pw.flush();
                 pw.close();
 

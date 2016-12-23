@@ -110,8 +110,8 @@ public class Checker {
 
 	static Logger logger = Logger.getGlobal();
 	//TODO Change hardcoded constants
-	private static Double lastTime = 0.0;
-	private static Long lastMem = 0L;
+	private Double lastTime = 0.0;
+	private Long lastMem = 0L;
 	private ResultChecker resultChecker;
 
 	public Checker(String checkerCode, String checkerLanguage) {
@@ -120,10 +120,10 @@ public class Checker {
 
 	public boolean compareAnswers(String referenceAns, String programAns, String originalInput)
 	{
-		return resultChecker.check(originalInput, programAns);
+		return resultChecker.check(referenceAns, programAns, originalInput);
 	}
 	
-	public static String getProgramResult(String path, String fileName, String testInputData, String programType, String runPath) {
+	public String getProgramResult(String path, String fileName, String testInputData, String programType, String runPath) {
 		if(programType.equals("JAVA")) fileName = "Solution";
 		TestChecker testChecker = new TestChecker(path, fileName, testInputData, programType, runPath);
 		testChecker.run();

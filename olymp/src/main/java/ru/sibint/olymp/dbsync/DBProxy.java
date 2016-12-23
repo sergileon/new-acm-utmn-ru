@@ -170,7 +170,7 @@ public class DBProxy {
 	
 	@SuppressWarnings("unchecked")
 	public static String getStats() {
-		List<Object> list = evaluateQuery("SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId GROUP BY UserApp.Name ORDER BY Rating DESC", QueryType.SELECT);
+		List<Object> list = evaluateQuery("SELECT UserApp.Name as UserName, COUNT(DISTINCT Submission.TaskId) AS Rating FROM UserApp LEFT JOIN Submission ON UserApp.Id = Submission.UserId WHERE Submission.Verdict = 'AC' GROUP BY UserApp.Name ORDER BY Rating DESC", QueryType.SELECT);
 		if(list == null) return "[{\"status\":\"error\"}]";
 		JSONArray jsonArray = new JSONArray();
 		for(Object element : list) {
@@ -220,14 +220,22 @@ public class DBProxy {
 	public static String getTestInputData(Integer taskId, Integer testId) {
 		String result = "";
 		String qury = "SELECT InputData FROM Test WHERE TaskId = " + taskId.toString();
-		Map<String, String> mp = (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(testId - 1));
+		List<Object> lo = evaluateQuery(qury, QueryType.SELECT);
+		if(lo.size() == 0) {
+			return "";
+		}
+		Map<String, String> mp = (Map<String, String>)(lo.get(testId - 1));
 		return mp.get("InputData");
 	}
 
 	public static String getTestOutputData(Integer taskId, Integer testId) {
 		String result = "";
 		String qury = "SELECT OutputData FROM Test WHERE TaskId = " + taskId.toString();
-		Map<String, String> mp = (Map<String, String>)(evaluateQuery(qury, QueryType.SELECT).get(testId - 1));
+		List<Object> lo = evaluateQuery(qury, QueryType.SELECT);
+		if(lo.size() == 0) {
+			return "";
+		}
+		Map<String, String> mp = (Map<String, String>) (lo.get(testId - 1));
 		return mp.get("OutputData");
 	}
 

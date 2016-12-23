@@ -63,8 +63,8 @@
 				<td></td><td></td>
 				<td>
 					<center>
-						<button><a href="forum.php?taskid=<?php echo $taskid; ?>">Forum</a></button>
-						<button id="openSubmit"><a href="#" data-toggle="modal" data-target="#submitWindow" id="oS">Submit</a></button>
+						<a href="forum.jsp"><button type="button" class="btn btn-default">Forum</button></a>
+						<a href="#" data-toggle="modal" data-target="#submitWindow" id="oS"><button id="openSubmit" class="btn btn-default">Submit</button></a>
 					</center>
 				</td>
 			</tr>
