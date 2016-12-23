@@ -277,7 +277,7 @@
 						if(usid != data[i].authid) {
 							s1 = ""; s2 = "";
 						}
-						$("#submissions tr:last").after("<tr><td><center>" + s1 + data[i].id + s2 + "</center></td><td><center>" + data[i].auth + "</center></td><td><center>"  + data[i].task + "</center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem / 1024 + "KB</center></td></tr>");
+						$("#submissions tr:last").after("<tr><td><center>" + s1 + data[i].id + s2 + "</center></td><td><center>" + data[i].auth + "</center></td><td><center><a href='task.jsp?id=" + data[i].task + "'>" + data[i].task + "</a></center></td><td><center>" + lang + "</center></td><td><center>" + verdict + "</center></td><td><center>" + data[i].testid + "</center></td><td><center>" + data[i].comment + "</center></td><td><center>" + data[i].time + "</center></td><td><center>" + data[i].mem / 1024 + "KB</center></td></tr>");
 					}
 				},
 				error: function (jqXHR, exception) {

@@ -112,4 +112,4 @@ INSERT INTO Test(TaskId, InputData, OutputData) VALUES (5, "112431\n2123123", "2
 
 UPDATE Task SET Checker = "import java.util.Scanner;\nimport java.io.File;\nimport java.io.FileNotFoundException;\n\npublic class Checker {\n\n    public static void main(String... args) throws FileNotFoundException {\n        Scanner S_in = new Scanner(new File(args[0]));\n        Scanner S_out = new Scanner(new File(args[1]));\n        int a = S_in.nextInt();\n        int b = S_in.nextInt();\n        int c = S_out.nextInt();\n        if(a + b == c) System.out.println(\"OK\"); else System.out.println(\"WA\");\n    }\n}" WHERE Id = 1;
 
-UPDATE Task SET CheckerLanguage WHERE Id = 1;
+UPDATE Task SET CheckerLanguage = "JAVA" WHERE Id = 1;
